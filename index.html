@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trigonometry Word Problems Trainer</title>
+    <!-- KaTeX for rendering LaTeX step-by-step solutions -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eaeff1; margin: 0; padding: 15px; color: #333; }
+        .container { width: 100%; max-width: 900px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-size: 2.2em; margin-top: 0; margin-bottom: 25px; }
+        
+        .header-panel { display: flex; flex-direction: column; align-items: center; gap: 15px; background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px solid #e0e0e0; }
+        
+        button { padding: 14px 24px; border: none; background: #3498db; color: white; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s; box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3); }
+        button:hover { background: #2980b9; }
+        button:disabled { background: #95a5a6; cursor: not-allowed; box-shadow: none; }
+        .btn-success { background: #2ecc71; box-shadow: 0 4px 6px rgba(46, 204, 113, 0.3); }
+        .btn-success:hover { background: #27ae60; }
+        
+        .problem-area { display: none; animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .problem-text { font-size: 1.15em; line-height: 1.6; color: #34495e; background: #fff; padding: 15px; border-left: 5px solid #3498db; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        
+        .question-block { margin-bottom: 20px; padding: 15px; background: #fdfdfd; border: 1px solid #bdc3c7; border-radius: 8px; }
+        .question-text { font-weight: bold; margin-bottom: 10px; color: #2c3e50; font-size: 1.1em; }
+        .question-block input[type="number"] { width: 100%; max-width: 300px; padding: 12px 15px; font-size: 18px; border: 2px solid #bdc3c7; border-radius: 6px; outline: none; transition: 0.3s; }
+        .question-block input[type="number"]:focus { border-color: #3498db; }
+        
+        .status-panel { display: flex; justify-content: space-between; align-items: center; background: #f4f6f7; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; font-size: 1.2em; border: 1px solid #e0e0e0; }
+        .lives { color: #e74c3c; letter-spacing: 2px; }
+        
+        .solution-area { display: none; background: #fdfdfd; padding: 25px; border-radius: 8px; margin-top: 25px; border: 2px dashed #2ecc71; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .solution-area.failed { border-color: #e74c3c; }
+        .solution-area h3 { margin-top: 0; color: #2c3e50; text-align: center; margin-bottom: 20px; }
+        
+        .math { font-size: 1.25em; margin: 15px 0; color: #2c3e50; overflow-x: auto; padding-bottom: 5px; }
+        
+        .time-display { text-align: center; font-size: 0.95em; color: #7f8c8d; margin-top: 25px; font-weight: bold; background: #fff; padding: 10px; border-radius: 6px; border: 1px dashed #bdc3c7; }
+
+        @media (max-width: 600px) {
+            .status-panel { flex-direction: column; gap: 10px; text-align: center; }
+            .question-block input[type="number"] { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Trig Word Problems Trainer</h1>
+    
+    <div class="header-panel">
+        <p style="margin: 0; color: #7f8c8d;">Master triangle trigonometry by solving dynamically generated variations of real-world problems. You have 3 lives per problem!</p>
+        <button onclick="generateWordProblem()">Generate Word Problem</button>
+    </div>
+    
+    <div id="problemArea" class="problem-area">
+        <div class="status-panel">
+            <div id="livesDisplay" class="lives">❤️❤️❤️ (3 Lives)</div>
+            <button id="checkBtn" class="btn-success" onclick="checkAnswer()">Check Answers</button>
+        </div>
+
+        <div id="problemText" class="problem-text"></div>
+        
+        <div class="question-block">
+            <div id="q1Text" class="question-text"></div>
+            <input type="number" id="q1Input" placeholder="Answer for Q1..." step="any">
+        </div>
+        
+        <div class="question-block">
+            <div id="q2Text" class="question-text"></div>
+            <input type="number" id="q2Input" placeholder="Answer for Q2..." step="any">
+        </div>
+        
+        <div id="solutionArea" class="solution-area">
+            <h3 id="solutionTitle">Step-by-Step Solution</h3>
+            <div id="stepsContainer"></div>
+            <div id="timeDisplay" class="time-display" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ==================================================
+       UTILITIES & MATH CONSTRAINTS
+       ================================================== */
+    const randAlpha = () => Math.floor(Math.random() * 41) - 20; 
+    
+    const perturb = (val, dec) => {
+        let alpha = randAlpha();
+        let newVal = val * (1 + alpha / 100);
+        let factor = Math.pow(10, dec);
+        return Math.round(newVal * factor) / factor;
+    };
+
+    const renderMath = () => {
+        document.querySelectorAll('.math').forEach(el => {
+            katex.render(el.getAttribute('data-tex'), el, {throwOnError: false});
+        });
+    };
+
+    /* ==================================================
+       PROBLEM GENERATORS
+       ================================================== */
+    const generators =[
+        // Problem 1: Mayon Volcano
+        () => {
+            let d, h, valid = false;
+            while(!valid) { d = perturb(8500, 0); h = perturb(2462, 0); if(d>0 && h>0) valid = true; }
+            let tanTheta = h / d, theta = Math.atan(tanTheta) * 180 / Math.PI, hyp = Math.hypot(d, h);
+            let ans1 = Number(theta.toFixed(2)), ans2 = Number(Math.round(hyp));
+            return {
+                text: `A tourist in Albay is taking pictures of the famous Mayon Volcano. The tourist is standing on flat ground exactly ${d} meters away from the center of the volcano's base. The height of the volcano is ${h} meters.`,
+                q1: `What is the angle of elevation of the top of the volcano from the tourist's location? Round your answer to 2 decimal places.`,
+                q2: `If a drone flies in a straight line directly from the tourist's current position to the very top of the volcano, how far would the drone fly? Use the unrounded angle from the first question to solve this. Round your answer to the nearest whole number (0 decimal places).`,
+                ans1, ans2,
+                steps:[
+                    `\\text{Let the angle of elevation be } \\theta.`,
+                    `\\tan(\\theta) = \\frac{\\text{Opposite}}{\\text{Adjacent}} = \\frac{${h}}{${d}} = ${tanTheta.toFixed(6)}`,
+                    `\\theta = \\tan^{-1}(${tanTheta.toFixed(6)}) \\approx ${ans1}^\\circ`,
+                    `\\text{For the drone's flight path (hypotenuse):}`,
+                    `\\cos(\\theta) = \\frac{\\text{Adjacent}}{\\text{Hypotenuse}} \\implies \\cos(${theta.toFixed(8)}^\\circ) = \\frac{${d}}{\\text{hypotenuse}}`,
+                    `\\text{hypotenuse} = \\frac{${d}}{\\cos(${theta.toFixed(8)}^\\circ)} \\approx ${ans2} \\text{ meters}`
+                ]
+            };
+        },
+        // Problem 2: Cleaning a Window
+        () => {
+            let L, d, valid = false;
+            while(!valid) { L = perturb(5,0); d = perturb(1.8,1); if(d>0 && L>d) valid=true; }
+            let theta = Math.acos(d/L) * 180 / Math.PI, ans1 = Number(theta.toFixed(1));
+            let h = L * Math.sin(theta * Math.PI / 180), ans2 = Number(h.toFixed(2));
+            return {
+                text: `A homeowner in Manila is using a ${L}-meter long ladder to reach a window to clean it. To make sure the ladder does not slide, the base of the ladder is placed exactly ${d} meters away from the bottom of the wall.`,
+                q1: `What is the angle that the ladder makes with the flat ground? Round your answer to 1 decimal place.`,
+                q2: `How high is the window from the ground? Use the unrounded angle from the first question for your calculation. Round your answer to 2 decimal places.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{The ladder forms the hypotenuse, and the distance from the wall is the adjacent side.}`,
+                    `\\cos(\\theta) = \\frac{${d}}{${L}} = ${(d/L).toFixed(5)}`,
+                    `\\theta = \\cos^{-1}(${ (d/L).toFixed(5) }) \\approx ${ans1}^\\circ`,
+                    `\\text{To find the height (opposite side), use the sine function and the unrounded angle.}`,
+                    `\\sin(${theta.toFixed(5)}^\\circ) = \\frac{\\text{height}}{${L}} \\implies \\text{height} = ${L} \\cdot \\sin(${theta.toFixed(5)}^\\circ)`,
+                    `\\text{height} \\approx ${ans2} \\text{ meters}`
+                ]
+            };
+        },
+        // Problem 3: Inter-island Ferries
+        () => {
+            let vA, vB, angle, t, valid = false;
+            while(!valid) { vA=perturb(30,0); vB=perturb(45,0); angle=perturb(52,0); t=perturb(2,0); if(vA>0 && vB>0 && angle>0 && angle<90 && t>0) valid=true; }
+            let dA = vA*t, dB = vB*t, cSq = dA*dA + dB*dB - 2*dA*dB*Math.cos(angle*Math.PI/180), c = Math.sqrt(cSq), ans1 = Number(c.toFixed(2));
+            let sinB = (dA * Math.sin(angle*Math.PI/180))/c, B = Math.asin(sinB)*180/Math.PI, ans2 = Number(B.toFixed(1));
+            return {
+                text: `Two passenger ferries leave the port of Batangas at the exact same time. Ferry A travels straight towards Puerto Galera at a speed of ${vA} km/hr. Ferry B travels straight towards Calapan at a speed of ${vB} km/hr. The angle between their two straight paths is ${angle} degrees.`,
+                q1: `After exactly ${t} hours of travel, how far apart are the two ferries from each other? Round your answer to 2 decimal places.`,
+                q2: `From Ferry B's position after ${t} hours, what is the angle formed by the lines of sight pointing to the port and to Ferry A? Use the unrounded distance from the first question. Round your answer to 1 decimal place.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{Distance traveled by Ferry A } (b) = ${vA} \\times ${t} = ${dA} \\text{ km}`,
+                    `\\text{Distance traveled by Ferry B } (a) = ${vB} \\times ${t} = ${dB} \\text{ km}`,
+                    `\\text{Use the Law of Cosines to find the distance } c \\text{ between them.}`,
+                    `c^2 = ${dA}^2 + ${dB}^2 - 2(${dA})(${dB}) \\cos(${angle}^\\circ)`,
+                    `c = \\sqrt{${cSq.toFixed(4)}} \\approx ${ans1} \\text{ km}`,
+                    `\\text{Use the Law of Sines to find the angle at Ferry B (opposite distance Ferry A traveled, } ${dA} \\text{ km).}`,
+                    `\\frac{\\sin(\\text{Angle B})}{${dA}} = \\frac{\\sin(${angle}^\\circ)}{${c.toFixed(6)}}`,
+                    `\\sin(\\text{Angle B}) = \\frac{${dA} \\cdot \\sin(${angle}^\\circ)}{${c.toFixed(6)}} = ${sinB.toFixed(6)}`,
+                    `\\text{Angle B} = \\sin^{-1}(${sinB.toFixed(6)}) \\approx ${ans2}^\\circ`
+                ]
+            };
+        },
+        // Problem 4: Hot Air Balloon Festival
+        () => {
+            let d, angJ, angM, valid = false;
+            while(!valid) { d=perturb(120,0); angJ=perturb(42,0); angM=perturb(55,0); if(d>0 && angJ>0 && angM>0 && (angJ+angM)<170) valid=true; }
+            let angB = 180 - angJ - angM;
+            let dJose = (d * Math.sin(angM*Math.PI/180)) / Math.sin(angB*Math.PI/180), ans1 = Number(dJose.toFixed(2));
+            let dMaria = (d * Math.sin(angJ*Math.PI/180)) / Math.sin(angB*Math.PI/180), ans2 = Number(dMaria.toFixed(2));
+            return {
+                text: `During the hot air balloon festival in Clark, Pampanga, two friends, Jose and Maria, are standing ${d} meters apart on flat ground. They are looking at a hot air balloon that is flying directly above the imaginary line connecting them. The angle of elevation from Jose to the balloon is ${angJ} degrees. The angle of elevation from Maria to the balloon is ${angM} degrees.`,
+                q1: `What is the straight-line distance from Jose to the balloon? Round your answer to 2 decimal places.`,
+                q2: `What is the straight-line distance from Maria to the balloon? Round your answer to 2 decimal places.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{The triangle has angles at Jose } (${angJ}^\\circ) \\text{ and Maria } (${angM}^\\circ).`,
+                    `\\text{The angle at the balloon} = 180 - ${angJ} - ${angM} = ${angB}^\\circ`,
+                    `\\text{To find distance from Jose to the balloon, we need the side opposite Maria.}`,
+                    `\\frac{\\text{dist}_{Jose}}{\\sin(${angM}^\\circ)} = \\frac{${d}}{\\sin(${angB}^\\circ)} \\implies \\text{dist}_{Jose} = \\frac{${d} \\cdot \\sin(${angM}^\\circ)}{\\sin(${angB}^\\circ)} \\approx ${ans1} \\text{ m}`,
+                    `\\text{To find distance from Maria to the balloon, we need the side opposite Jose.}`,
+                    `\\frac{\\text{dist}_{Maria}}{\\sin(${angJ}^\\circ)} = \\frac{${d}}{\\sin(${angB}^\\circ)} \\implies \\text{dist}_{Maria} = \\frac{${d} \\cdot \\sin(${angJ}^\\circ)}{\\sin(${angB}^\\circ)} \\approx ${ans2} \\text{ m}`
+                ]
+            };
+        },
+        // Problem 5: Burnham Park Garden
+        () => {
+            let a, b, c, valid = false;
+            while(!valid) { 
+                a=perturb(8,0); b=perturb(11,0); c=perturb(15,0); 
+                let arr=[a,b,c].sort((x,y)=>x-y); a=arr[0]; b=arr[1]; c=arr[2];
+                if(a+b > c+0.1) valid=true; 
+            }
+            let cosC = (a*a + b*b - c*c)/(2*a*b), angC = Math.acos(cosC)*180/Math.PI, ans1 = Number(angC.toFixed(1));
+            let sinA = (a*Math.sin(angC*Math.PI/180))/c, angA = Math.asin(sinA)*180/Math.PI, ans2 = Number(angA.toFixed(1));
+            return {
+                text: `A newly landscaped triangular flower garden in Burnham Park, Baguio City, has side borders measuring ${a} meters, ${b} meters, and ${c} meters.`,
+                q1: `What is the measure of the angle opposite the longest side of the garden? Round your answer to 1 decimal place.`,
+                q2: `What is the measure of the angle opposite the shortest side of the garden? Use the unrounded angle from the first question to solve this. Round your answer to 1 decimal place.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{The longest side is } ${c} \\text{ meters. Let the angle opposite it be } \\theta. \\text{ Use Law of Cosines.}`,
+                    `${c}^2 = ${a}^2 + ${b}^2 - 2(${a})(${b}) \\cos(\\theta)`,
+                    `\\cos(\\theta) = \\frac{${a*a+b*b-c*c}}{${2*a*b}} = ${cosC.toFixed(6)}`,
+                    `\\theta = \\cos^{-1}(${cosC.toFixed(6)}) \\approx ${ans1}^\\circ`,
+                    `\\text{The shortest side is } ${a} \\text{ meters. Let the angle opposite it be } \\alpha. \\text{ Use Law of Sines.}`,
+                    `\\frac{\\sin(\\alpha)}{${a}} = \\frac{\\sin(${angC.toFixed(5)}^\\circ)}{${c}}`,
+                    `\\sin(\\alpha) = \\frac{${a} \\cdot \\sin(${angC.toFixed(5)}^\\circ)}{${c}} = ${sinA.toFixed(6)}`,
+                    `\\alpha = \\sin^{-1}(${sinA.toFixed(6)}) \\approx ${ans2}^\\circ`
+                ]
+            };
+        },
+        // Problem 6: Bohol Zipline
+        () => {
+            let a, b, C, valid = false;
+            while(!valid) { a=perturb(150,0); b=perturb(200,0); C=perturb(110,0); if(a>0 && b>0 && C>90 && C<170) valid=true; }
+            let cSq = a*a + b*b - 2*a*b*Math.cos(C*Math.PI/180), c = Math.sqrt(cSq), ans1 = Number(c.toFixed(1));
+            let sinA = (b*Math.sin(C*Math.PI/180))/c, angA = Math.asin(sinA)*180/Math.PI, ans2 = Number(angA.toFixed(1));
+            return {
+                text: `A zipline in Bohol is built connecting the tops of Cliff A and Cliff B, which are separated by a river. From a viewpoint on the riverbank directly between the cliffs, a guide measures the distance to the top of Cliff A as ${a} meters, and the distance to the top of Cliff B as ${b} meters. The angle between the two lines of sight from the viewpoint to the tops of the two cliffs is ${C} degrees.`,
+                q1: `What is the direct distance between the top of Cliff A and the top of Cliff B (which represents the length of the zipline cable)? Round your answer to 1 decimal place.`,
+                q2: `From the top of Cliff A, what is the angle between the viewpoint on the ground and the top of Cliff B? Use the unrounded distance from the first question. Round your answer to 1 decimal place.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{Let } c \\text{ be the distance between the tops of the cliffs. Use the Law of Cosines.}`,
+                    `c^2 = ${a}^2 + ${b}^2 - 2(${a})(${b}) \\cos(${C}^\\circ)`,
+                    `c = \\sqrt{${cSq.toFixed(4)}} \\approx ${ans1} \\text{ meters}`,
+                    `\\text{Use the Law of Sines to find the angle at Cliff A. The side opposite this angle is } ${b} \\text{ meters.}`,
+                    `\\frac{\\sin(\\text{Angle A})}{${b}} = \\frac{\\sin(${C}^\\circ)}{${c.toFixed(5)}}`,
+                    `\\sin(\\text{Angle A}) = \\frac{${b} \\cdot \\sin(${C}^\\circ)}{${c.toFixed(5)}} = ${sinA.toFixed(6)}`,
+                    `\\text{Angle A} = \\sin^{-1}(${sinA.toFixed(6)}) \\approx ${ans2}^\\circ`
+                ]
+            };
+        },
+        // Problem 7: Land Surveying in Mindanao
+        () => {
+            let c, b, A, valid = false;
+            while(!valid) { c=perturb(45,0); b=perturb(60,0); A=perturb(75,0); if(c>0 && b>0 && A>0 && A<170) valid=true; }
+            let aSq = b*b + c*c - 2*b*c*Math.cos(A*Math.PI/180), a = Math.sqrt(aSq), ans1 = Number(a.toFixed(2));
+            let halfB = b/2, xSq = c*c + halfB*halfB - 2*c*halfB*Math.cos(A*Math.PI/180), x = Math.sqrt(xSq), ans2 = Number(x.toFixed(2));
+            return {
+                text: `A surveyor in Mindanao is measuring a triangular agricultural plot of land. Standing at Corner A, he measures the straight-line distance to Corner B as ${c} meters, and the distance to Corner C as ${b} meters. The angle formed at Corner A by his lines of sight to Corner B and Corner C is exactly ${A} degrees.`,
+                q1: `What is the length of the fence needed to directly connect Corner B and Corner C? Round your answer to 2 decimal places.`,
+                q2: `The surveyor decides to divide the land by creating a new straight fence from Corner B to the exact midpoint of the border connecting Corner A and Corner C. What is the length of this new fence? Round your answer to 2 decimal places.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{Use the Law of Cosines for triangle ABC to find the side BC.}`,
+                    `BC^2 = ${c}^2 + ${b}^2 - 2(${c})(${b}) \\cos(${A}^\\circ)`,
+                    `BC = \\sqrt{${aSq.toFixed(4)}} \\approx ${ans1} \\text{ meters}`,
+                    `\\text{The midpoint of AC is } ${halfB} \\text{ meters away from Corner A.}`,
+                    `\\text{This forms a new triangle with sides } ${c}\\text{m and } ${halfB}\\text{m, with an included angle of } ${A}^\\circ.`,
+                    `x^2 = ${c}^2 + ${halfB}^2 - 2(${c})(${halfB}) \\cos(${A}^\\circ)`,
+                    `x = \\sqrt{${xSq.toFixed(4)}} \\approx ${ans2} \\text{ meters}`
+                ]
+            };
+        },
+        // Problem 8: Airplane Tracking
+        () => {
+            let c, a, b, valid = false;
+            while(!valid) { 
+                c=perturb(15,0); b=perturb(12,0); a=perturb(14,0); 
+                let arr=[a,b,c].sort((x,y)=>x-y); if(arr[0]+arr[1] > arr[2]+0.1) valid=true; 
+            }
+            let cosS1 = (b*b + c*c - a*a)/(2*b*c), angS1 = Math.acos(cosS1)*180/Math.PI, ans1 = Number(angS1.toFixed(2));
+            let sinS2 = (b*Math.sin(angS1*Math.PI/180))/a, angS2 = Math.asin(sinS2)*180/Math.PI, ans2 = Number(angS2.toFixed(2));
+            return {
+                text: `A commercial airplane is flying over Metro Manila. Two tracking stations on the ground, Station 1 and Station 2, are exactly ${c} kilometers apart. At a specific moment, the airplane is flying directly between them. The direct distance from Station 1 to the airplane is ${b} kilometers. The direct distance from Station 2 to the airplane is ${a} kilometers.`,
+                q1: `What is the angle of elevation of the airplane from the perspective of Station 1? Round your answer to 2 decimal places.`,
+                q2: `What is the angle of elevation of the airplane from the perspective of Station 2? Use the unrounded angle from the first question. Round your answer to 2 decimal places.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{The sides are } ${b}, ${a}, \\text{ and } ${c}. \\text{ We need the angle at Station 1 (opposite the } ${a} \\text{ km side).}`,
+                    `${a}^2 = ${b}^2 + ${c}^2 - 2(${b})(${c}) \\cos(\\text{Station 1})`,
+                    `\\cos(\\text{Station 1}) = \\frac{${b*b} + ${c*c} - ${a*a}}{${2*b*c}} = ${cosS1.toFixed(6)}`,
+                    `\\text{Station 1} = \\cos^{-1}(${cosS1.toFixed(6)}) \\approx ${ans1}^\\circ`,
+                    `\\text{Use the Law of Sines to find the angle at Station 2 (opposite the } ${b} \\text{ km side).}`,
+                    `\\frac{\\sin(\\text{Station 2})}{${b}} = \\frac{\\sin(${angS1.toFixed(4)}^\\circ)}{${a}}`,
+                    `\\sin(\\text{Station 2}) = \\frac{${b} \\cdot \\sin(${angS1.toFixed(4)}^\\circ)}{${a}} = ${sinS2.toFixed(6)}`,
+                    `\\text{Station 2} = \\sin^{-1}(${sinS2.toFixed(6)}) \\approx ${ans2}^\\circ`
+                ]
+            };
+        },
+        // Problem 9: Biking Trails
+        () => {
+            let x, y, z, valid = false;
+            while(!valid) { 
+                x=perturb(5,0); y=perturb(7,0); z=perturb(8,0); 
+                let arr=[x,y,z].sort((i,j)=>i-j); if(arr[0]+arr[1] > arr[2]+0.1) valid=true; 
+            }
+            let cosXY = (x*x + y*y - z*z)/(2*x*y), angXY = Math.acos(cosXY)*180/Math.PI, ans1 = Number(angXY.toFixed(1));
+            let cosYZ = (y*y + z*z - x*x)/(2*y*z), angYZ = Math.acos(cosYZ)*180/Math.PI, ans2 = Number(angYZ.toFixed(1));
+            return {
+                text: `Three friends in Cebu are riding their mountain bikes. They start at a common crossroad. Trail X is exactly ${x} kilometers long. Trail Y is exactly ${y} kilometers long. Trail Z connects the end of Trail X and the end of Trail Y and is exactly ${z} kilometers long.`,
+                q1: `What is the angle between Trail X and Trail Y at the crossroad? Round your answer to 1 decimal place.`,
+                q2: `What is the angle between Trail Y and Trail Z? Round your answer to 1 decimal place.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{The angle between Trail X and Trail Y is opposite Trail Z } (${z} \\text{ km}).`,
+                    `\\cos(\\text{Angle XY}) = \\frac{${x}^2 + ${y}^2 - ${z}^2}{2(${x})(${y})} = ${cosXY.toFixed(6)}`,
+                    `\\text{Angle XY} = \\cos^{-1}(${cosXY.toFixed(6)}) \\approx ${ans1}^\\circ`,
+                    `\\text{The angle between Trail Y and Trail Z is opposite Trail X } (${x} \\text{ km}).`,
+                    `\\cos(\\text{Angle YZ}) = \\frac{${y}^2 + ${z}^2 - ${x}^2}{2(${y})(${z})} = ${cosYZ.toFixed(6)}`,
+                    `\\text{Angle YZ} = \\cos^{-1}(${cosYZ.toFixed(6)}) \\approx ${ans2}^\\circ`
+                ]
+            };
+        },
+        // Problem 10: Lighthouses
+        () => {
+            let c, C, A, valid = false;
+            while(!valid) { c=perturb(28,0); C=perturb(45,0); A=perturb(65,0); if(c>0 && C>0 && A>0 && (C+A)<170) valid=true; }
+            let B = 180 - C - A;
+            let a = c*Math.sin(A*Math.PI/180)/Math.sin(C*Math.PI/180), ans1 = Number(a.toFixed(2));
+            let b = c*Math.sin(B*Math.PI/180)/Math.sin(C*Math.PI/180);
+            let halfC = c/2, dSq = b*b + halfC*halfC - 2*b*halfC*Math.cos(A*Math.PI/180), d = Math.sqrt(dSq), ans2 = Number(d.toFixed(2));
+            return {
+                text: `A fishing boat spots two lighthouses on the coast, Parola A and Parola B. The straight-line distance between Parola A and Parola B is known to be ${c} kilometers. From the boat's location, the angle between the lines of sight to the two lighthouses is ${C} degrees. The angle formed at Parola A by the lines pointing to Parola B and to the boat is ${A} degrees.`,
+                q1: `What is the straight-line distance from the fishing boat to Parola B? Round your answer to 2 decimal places.`,
+                q2: `If another fishing boat drops its anchor exactly halfway between Parola A and Parola B, what is the distance from the first fishing boat to this second boat? Use unrounded values from the previous steps. Round your answer to 2 decimal places.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{Let the boat be C. Angle C = } ${C}^\\circ. \\text{ Angle A = } ${A}^\\circ. \\text{ Dist between lighthouses } c = ${c}.`,
+                    `\\text{Angle B} = 180 - ${C} - ${A} = ${B}^\\circ`,
+                    `\\text{We need the distance to Parola B (side } a \\text{, opposite Angle A). Use Law of Sines.}`,
+                    `\\frac{a}{\\sin(${A}^\\circ)} = \\frac{${c}}{\\sin(${C}^\\circ)} \\implies a = \\frac{${c} \\cdot \\sin(${A}^\\circ)}{\\sin(${C}^\\circ)} \\approx ${ans1} \\text{ km}`,
+                    `\\text{Now, find distance from boat to Parola A (side } b \\text{): } b = \\frac{${c} \\cdot \\sin(${B}^\\circ)}{\\sin(${C}^\\circ)} = ${b.toFixed(4)} \\text{ km}`,
+                    `\\text{The midpoint is exactly } ${halfC} \\text{ km from Parola A. Consider the new triangle formed.}`,
+                    `d^2 = ${b.toFixed(4)}^2 + ${halfC}^2 - 2(${b.toFixed(4)})(${halfC}) \\cos(${A}^\\circ)`,
+                    `d = \\sqrt{${dSq.toFixed(4)}} \\approx ${ans2} \\text{ km}`
+                ]
+            };
+        },
+        // Problem 11: Mt. Pulag Camping Trail
+        () => {
+            let a, b, A, valid = false;
+            while(!valid) { a=perturb(6.2,1); b=perturb(4.5,1); A=perturb(48,0); if(a>0 && b>0 && A>0 && A<170 && (b*Math.sin(A*Math.PI/180)/a)<1) valid=true; }
+            let sinB = (b*Math.sin(A*Math.PI/180))/a, B = Math.asin(sinB)*180/Math.PI, ans1 = Number(B.toFixed(2));
+            let C = 180 - A - B, c = a*Math.sin(C*Math.PI/180)/Math.sin(A*Math.PI/180), ans2 = Number(c.toFixed(2));
+            return {
+                text: `A group of hikers is exploring Mt. Pulag. There are three key locations on their map: the Ranger Station, Camp 1, and Camp 2. The straight-line distance from Camp 1 to Camp 2 is ${a} kilometers. The straight-line distance from the Ranger Station to Camp 2 is ${b} kilometers. Standing at the Ranger Station, the hikers measure the angle formed by their lines of sight pointing to Camp 1 and Camp 2, which is exactly ${A} degrees.`,
+                q1: `What is the measure of the angle at Camp 1 (formed by the lines of sight pointing to the Ranger Station and Camp 2)? Round your answer to 2 decimal places.`,
+                q2: `The hikers want to know the straight-line distance from the Ranger Station directly to Camp 1. First, find the angle at Camp 2 using the unrounded angle from the previous question. Then, use the Law of Sines to calculate this missing distance. Round your final answer to 2 decimal places.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{Let Ranger Station be A, Camp 1 be B, and Camp 2 be C.}`,
+                    `\\frac{\\sin(B)}{${b}} = \\frac{\\sin(${A}^\\circ)}{${a}} \\implies \\sin(B) = \\frac{${b} \\cdot \\sin(${A}^\\circ)}{${a}} = ${sinB.toFixed(6)}`,
+                    `B = \\sin^{-1}(${sinB.toFixed(6)}) \\approx ${ans1}^\\circ`,
+                    `\\text{Find Angle C (at Camp 2) using the sum of angles.}`,
+                    `C = 180 - ${A} - ${B.toFixed(4)} = ${C.toFixed(4)}^\\circ`,
+                    `\\text{Use Law of Sines to find distance } c \\text{ (Ranger to Camp 1, opposite Camp 2).}`,
+                    `\\frac{c}{\\sin(${C.toFixed(4)}^\\circ)} = \\frac{${a}}{\\sin(${A}^\\circ)} \\implies c = \\frac{${a} \\cdot \\sin(${C.toFixed(4)}^\\circ)}{\\sin(${A}^\\circ)} \\approx ${ans2} \\text{ km}`
+                ]
+            };
+        },
+        // Problem 12: Zamboanga Vinta Race
+        () => {
+            let a, b, A, valid = false;
+            while(!valid) { a=perturb(850,0); b=perturb(600,0); A=perturb(55,0); if(a>0 && b>0 && A>0 && A<170 && (b*Math.sin(A*Math.PI/180)/a)<1) valid=true; }
+            let sinB = (b*Math.sin(A*Math.PI/180))/a, B = Math.asin(sinB)*180/Math.PI, ans1 = Number(B.toFixed(2));
+            let C = 180 - A - B, c = a*Math.sin(C*Math.PI/180)/Math.sin(A*Math.PI/180), ans2 = Number(c.toFixed(2));
+            return {
+                text: `During the famous Regatta de Zamboanga, a vinta boat race course is marked by three floating buoys forming a triangle: Buoy 1, Buoy 2, and Buoy 3. The straight-line distance from Buoy 2 to Buoy 3 is ${a} meters. The straight-line distance from Buoy 1 to Buoy 3 is ${b} meters. From the perspective of a judge boat stationed exactly at Buoy 1, the angle between the lines of sight looking at Buoy 2 and Buoy 3 is ${A} degrees.`,
+                q1: `What is the measure of the angle at Buoy 2 (formed by the lines of sight pointing to Buoy 1 and Buoy 3)? Round your answer to 2 decimal places.`,
+                q2: `The race organizers need to know the exact distance from Buoy 1 to Buoy 2 to complete the course map. First, find the angle at Buoy 3 using the unrounded angle from the previous question. Then, use the Law of Sines to calculate this missing distance. Round your final answer to 2 decimal places.`,
+                ans1, ans2,
+                steps:[
+                    `\\text{Let Buoy 1 be Point A, Buoy 2 be Point B, and Buoy 3 be Point C.}`,
+                    `\\frac{\\sin(B)}{${b}} = \\frac{\\sin(${A}^\\circ)}{${a}} \\implies \\sin(B) = \\frac{${b} \\cdot \\sin(${A}^\\circ)}{${a}} = ${sinB.toFixed(6)}`,
+                    `B = \\sin^{-1}(${sinB.toFixed(6)}) \\approx ${ans1}^\\circ`,
+                    `\\text{Find Angle C (at Buoy 3) using the sum of angles.}`,
+                    `C = 180 - ${A} - ${B.toFixed(4)} = ${C.toFixed(4)}^\\circ`,
+                    `\\text{Use Law of Sines to find distance } c \\text{ (Buoy 1 to Buoy 2).}`,
+                    `\\frac{c}{\\sin(${C.toFixed(4)}^\\circ)} = \\frac{${a}}{\\sin(${A}^\\circ)} \\implies c = \\frac{${a} \\cdot \\sin(${C.toFixed(4)}^\\circ)}{\\sin(${A}^\\circ)} \\approx ${ans2} \\text{ m}`
+                ]
+            };
+        }
+    ];
+
+    /* ==================================================
+       APP LOGIC & STATE
+       ================================================== */
+    let currentProblem = null;
+    let lives = 3;
+    let startTime = null;
+
+    function generateWordProblem() {
+        let probFunc = generators[Math.floor(Math.random() * generators.length)];
+        currentProblem = probFunc();
+        
+        lives = 3;
+        startTime = new Date();
+        updateLivesDisplay();
+        
+        document.getElementById('problemArea').style.display = 'block';
+        document.getElementById('problemText').innerHTML = currentProblem.text;
+        document.getElementById('q1Text').innerText = currentProblem.q1;
+        document.getElementById('q2Text').innerText = currentProblem.q2;
+        
+        document.getElementById('q1Input').value = '';
+        document.getElementById('q2Input').value = '';
+        document.getElementById('q1Input').style.borderColor = '#bdc3c7';
+        document.getElementById('q2Input').style.borderColor = '#bdc3c7';
+        document.getElementById('q1Input').disabled = false;
+        document.getElementById('q2Input').disabled = false;
+        
+        document.getElementById('checkBtn').disabled = false;
+        document.getElementById('solutionArea').style.display = 'none';
+        document.getElementById('timeDisplay').style.display = 'none';
+        document.getElementById('solutionArea').className = 'solution-area';
+    }
+
+    function updateLivesDisplay() {
+        let text = '❤️'.repeat(lives) + '🤍'.repeat(3 - lives);
+        document.getElementById('livesDisplay').innerText = `${text} (${lives} Lives)`;
+    }
+
+    function checkAnswer() {
+        if (!currentProblem || lives <= 0) return;
+
+        let v1 = document.getElementById('q1Input').value.trim();
+        let v2 = document.getElementById('q2Input').value.trim();
+        
+        let c1 = v1 !== '' && Math.abs(parseFloat(v1) - currentProblem.ans1) < 1e-5;
+        let c2 = v2 !== '' && Math.abs(parseFloat(v2) - currentProblem.ans2) < 1e-5;
+        
+        document.getElementById('q1Input').style.borderColor = c1 ? '#2ecc71' : '#e74c3c';
+        document.getElementById('q2Input').style.borderColor = c2 ? '#2ecc71' : '#e74c3c';
+
+        if (c1 && c2) {
+            win();
+        } else {
+            lives--;
+            updateLivesDisplay();
+            if (lives > 0) {
+                alert("Incorrect. Please check your answers and try again!");
+            } else {
+                lose();
+            }
+        }
+    }
+
+    function win() {
+        let endTime = new Date();
+        document.getElementById('checkBtn').disabled = true;
+        document.getElementById('q1Input').disabled = true;
+        document.getElementById('q2Input').disabled = true;
+        
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        let startStr = startTime.toLocaleString('en-US', options);
+        let endStr = endTime.toLocaleString('en-US', options);
+        
+        let td = document.getElementById('timeDisplay');
+        td.style.display = 'block';
+        td.innerHTML = `Started: ${startStr} <br> Finished: ${endStr}`;
+        
+        showSolution(true);
+    }
+
+    function lose() {
+        document.getElementById('checkBtn').disabled = true;
+        document.getElementById('q1Input').disabled = true;
+        document.getElementById('q2Input').disabled = true;
+        showSolution(false);
+    }
+
+    function showSolution(success) {
+        let area = document.getElementById('solutionArea');
+        area.style.display = 'block';
+        
+        if (!success) {
+            area.classList.add('failed');
+            document.getElementById('solutionTitle').innerText = 'Out of Lives! Step-by-Step Solution';
+            document.getElementById('solutionTitle').style.color = '#e74c3c';
+        } else {
+            area.classList.remove('failed');
+            document.getElementById('solutionTitle').innerText = 'Correct! Step-by-Step Solution';
+            document.getElementById('solutionTitle').style.color = '#27ae60';
+        }
+        
+        document.getElementById('stepsContainer').innerHTML = currentProblem.steps.map(s => `<div class="math" data-tex="${s}"></div>`).join('');
+        renderMath();
+
+        // Smoothly scroll down so the user guarantees seeing the displayed solution
+        setTimeout(() => {
+            area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+</script>
+
+</body>
+</html>
