@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Trigonometry Word Problems Trainer</title>
+    <!-- Fonts & KaTeX -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Nunito', sans-serif; 
+            background-color: #f1f2f6; 
+            margin: 0; padding: 20px; color: #2f3542; 
+        }
+        
+        .container { 
+            width: 100%; max-width: 950px; margin: 0 auto; background: #ffffff; 
+            padding: 30px; border-radius: 24px; box-shadow: 0 8px 0 rgba(0,0,0,0.05); 
+            border: 2px solid #dfe4ea;
+        }
+        
+        h1 { text-align: center; color: #3742fa; font-size: 2.8em; font-weight: 900; margin-top: 0; margin-bottom: 20px; letter-spacing: -1px; }
+        
+        /* Nav Tabs */
+        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .tab-btn { 
+            padding: 14px 28px; border: 2px solid #dfe4ea; background: #ffffff; color: #747d8c; 
+            border-radius: 16px; cursor: pointer; font-size: 18px; font-weight: 800; transition: all 0.2s; 
+            box-shadow: 0 4px 0 #dfe4ea;
+        }
+        .tab-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #dfe4ea; }
+        .tab-btn.active { background: #3742fa; color: white; border-color: #3742fa; box-shadow: 0 4px 0 #2830c2; }
+        .tab-btn.active:active { transform: translateY(4px); box-shadow: 0 0 0 #2830c2; }
+        
+        /* Shared UI */
+        .header-panel { display: flex; flex-direction: column; align-items: center; gap: 15px; background: #f8f9fa; padding: 25px; border-radius: 16px; margin-bottom: 20px; text-align: center; border: 2px solid #f1f2f6; }
+        
+        select, input[type="text"], input[type="number"] {
+            padding: 14px 18px; font-size: 16px; border: 2px solid #ced6e0; border-radius: 12px; 
+            font-family: 'Nunito', sans-serif; font-weight: 700; outline: none; transition: border-color 0.2s;
+            color: #2f3542;
+        }
+        select:focus, input[type="text"]:focus, input[type="number"]:focus { border-color: #3742fa; }
+        
+        button { 
+            padding: 14px 28px; border: none; background: #1e90ff; color: white; 
+            border-radius: 16px; cursor: pointer; font-size: 18px; font-weight: 800; 
+            transition: all 0.1s; box-shadow: 0 5px 0 #1369be; 
+        }
+        button:active { transform: translateY(5px); box-shadow: 0 0 0 #1369be; }
+        button:disabled { background: #ced6e0; cursor: not-allowed; transform: none; box-shadow: 0 5px 0 #a4b0be; }
+        
+        .btn-success { background: #2ed573; box-shadow: 0 5px 0 #209d53; }
+        .btn-success:active { box-shadow: 0 0 0 #209d53; }
+        
+        .btn-danger { background: #ff4757; box-shadow: 0 5px 0 #c0333e; }
+        .btn-danger:active { box-shadow: 0 0 0 #c0333e; }
+
+        .btn-submit { width: 100%; font-size: 20px; margin-top: 20px; }
+        
+        /* Problem Areas */
+        .problem-text { font-size: 1.2em; line-height: 1.6; color: #2f3542; background: #f1f2f6; padding: 25px; border-radius: 16px; margin-bottom: 20px; font-weight: 600; }
+        
+        .question-block { margin-bottom: 20px; padding: 25px; background: #ffffff; border: 2px solid #dfe4ea; border-radius: 16px; box-shadow: 0 4px 0 rgba(0,0,0,0.03); }
+        .question-text { font-weight: 800; margin-bottom: 15px; color: #3742fa; font-size: 1.15em; }
+        
+        .input-row { display: flex; align-items: center; gap: 12px; }
+        .input-row input[type="number"] { flex: 1; max-width: 350px; font-size: 18px; }
+        .input-unit { font-size: 1.25em; font-weight: 800; color: #747d8c; white-space: nowrap; }
+        
+        .status-panel { display: flex; justify-content: space-between; align-items: center; background: #fff3cd; padding: 15px 25px; border-radius: 16px; margin-bottom: 20px; font-weight: 900; font-size: 1.2em; border: 2px solid #ffeaa7; color: #d35400; }
+        .lives { letter-spacing: 2px; }
+        
+        /* Solutions */
+        .solution-area { display: none; background: #f8f9fa; padding: 30px; border-radius: 16px; margin-top: 20px; border: 3px solid #2ed573; animation: fadeIn 0.4s; }
+        .solution-area.failed { border-color: #ff4757; }
+        .solution-area h3 { margin-top: 0; text-align: center; margin-bottom: 25px; font-weight: 900; font-size: 1.5em; }
+        .math { font-size: 1.3em; margin: 15px 0; color: #2f3542; overflow-x: auto; padding-bottom: 10px; }
+        
+        .score-banner { display: none; background: #ffa502; color: white; text-align: center; padding: 25px; border-radius: 16px; font-size: 1.6em; font-weight: 900; margin-bottom: 25px; border: 2px solid #e19000; box-shadow: 0 5px 0 #cc8200; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 650px) {
+            .status-panel { flex-direction: column; gap: 15px; text-align: center; }
+            .tabs { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>TrigMaster Word Problems</h1>
+    
+    <div class="tabs">
+        <button id="btn-tab-practice" class="tab-btn active" onclick="switchTab('practice')">Practice Mode</button>
+        <button id="btn-tab-test" class="tab-btn" onclick="switchTab('test')">Test Mode</button>
+    </div>
+    
+    <!-- ================= PRACTICE MODE ================= -->
+    <div id="practice-section">
+        <div class="header-panel">
+            <p style="margin: 0; color: #747d8c; font-weight: 700; font-size: 1.1em;">Master triangle trigonometry with customized real-world problems. You have 3 lives per problem!</p>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                <select id="categorySelect">
+                    <option value="all">Surprise Me! (Random All)</option>
+                    <option value="right">Angle of Elevation/Depression (SOHCAHTOA)</option>
+                    <option value="sines">Law of Sines</option>
+                    <option value="cosines">Law of Cosines</option>
+                </select>
+                <button onclick="generatePracticeProblem()">Generate Problem</button>
+            </div>
+        </div>
+        
+        <div id="practiceArea" style="display: none; animation: fadeIn 0.4s;">
+            <div class="status-panel">
+                <div id="livesDisplay" class="lives">❤️❤️❤️ (3 Lives)</div>
+                <button id="checkBtn" class="btn-success" onclick="checkPracticeAnswer()">Check Answers</button>
+            </div>
+
+            <div id="p-problemText" class="problem-text"></div>
+            
+            <div class="question-block">
+                <div id="p-q1Text" class="question-text"></div>
+                <div class="input-row">
+                    <input type="number" id="p-q1Input" placeholder="Exact answer Q1..." step="any">
+                    <span id="p-q1Unit" class="input-unit"></span>
+                </div>
+            </div>
+            
+            <div class="question-block">
+                <div id="p-q2Text" class="question-text"></div>
+                <div class="input-row">
+                    <input type="number" id="p-q2Input" placeholder="Exact answer Q2..." step="any">
+                    <span id="p-q2Unit" class="input-unit"></span>
+                </div>
+            </div>
+            
+            <div id="p-solutionArea" class="solution-area">
+                <h3 id="p-solutionTitle">Step-by-Step Solution</h3>
+                <div id="p-stepsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= TEST MODE ================= -->
+    <div id="test-section" style="display: none;">
+        <div class="header-panel" id="test-setup">
+            <p style="margin: 0; color: #747d8c; font-weight: 700; font-size: 1.1em;">Test Mode: Face 3 problems at once (1 of each type). No lives, just your final score out of 6!</p>
+            <input type="text" id="test-name" placeholder="Enter your full name...">
+            <button class="btn-success" onclick="startTest()">Start Test Now</button>
+            
+            <div style="width: 100%; margin-top: 20px; padding-top: 20px; border-top: 2px dashed #ced6e0;">
+                <p id="testQuote" style="font-size: 1.2em; font-style: italic; color: #3742fa; font-weight: 800; margin: 0 0 8px 0;"></p>
+                <p id="testSubtitle" style="font-size: 1em; color: #747d8c; font-weight: 700; margin: 0;"></p>
+            </div>
+        </div>
+        
+        <div id="test-active" style="display: none; animation: fadeIn 0.4s;">
+            <div class="status-panel" style="justify-content: space-between; background: #e0f7fa; border-color: #81ecec; color: #00cec9;">
+                <span id="test-welcome"></span>
+                <button class="btn-danger" style="padding: 10px 20px; font-size: 16px;" onclick="switchTab('test'); document.getElementById('test-active').style.display='none'; document.getElementById('test-setup').style.display='flex';">Abort Test</button>
+            </div>
+            
+            <div id="test-score-panel" class="score-banner"></div>
+            <div id="test-certificate-btn" style="display: none; text-align: center; margin-bottom: 25px;">
+                <button class="btn-success" onclick="viewCertificate()">Download Certificate</button>
+            </div>
+            
+            <div id="test-questions"></div>
+            
+            <button id="btn-submit-test" class="btn-danger btn-submit" onclick="submitTest()">Submit Test</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ==================================================
+       UTILITIES & DATA
+       ================================================== */
+    const students =["Airel", "Celzairus", "Russel", "Paulo II", "Jb", "Miguel", "Jj", "Kassie", "Aliyah", "Patricia", "Vienisse", "Sami", "Mariane", "Hines", "Athena", "Vera", "Alex", "Jazmine", "Naomi", "Nathalie", "Marchaesa", "Bey", "Heart", "Micko", "Gene", "Sean", "Charles", "Louis", "Jared", "John Rhey", "Malix", "Enzo", "Kirk", "Dan", "Hannah", "Sam", "Erica", "Princess", "Icelee", "Chesca", "Beryl", "Kat", "Akie", "Yuna", "Julienne", "Zhayne", "Kyle", "Clarc", "Mhiel", "Az", "Tonton", "Ryugi", "Adriel", "Zanjo", "Liam", "Wacky", "Bea", "Aleck", "Zhaf", "Akeisha", "Maja", "Addie", "Sophie", "Reanna", "Ashlly", "Mariel", "Parish", "Rua"];
+    
+    function getNames(count) {
+        let shuffled = [...students].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
+    }
+
+    const randAlpha = () => Math.floor(Math.random() * 41) - 20; 
+    
+    const perturb = (val, dec) => {
+        let alpha = randAlpha();
+        let newVal = val * (1 + alpha / 100);
+        let factor = Math.pow(10, dec);
+        return Math.round(newVal * factor) / factor;
+    };
+
+    const renderMath = () => {
+        document.querySelectorAll('.math').forEach(el => {
+            katex.render(el.getAttribute('data-tex'), el, {throwOnError: false});
+        });
+    };
+
+    const integrityQuotes =[
+        { q: "“Your grade is temporary. Your integrity is permanent.”", s: "A score lasts a school year. Character lasts a lifetime." },
+        { q: "“Cheating may raise your score, but it lowers your standards.”", s: "Success without honesty isn’t success." },
+        { q: "“If you cheat, you’re not fooling the teacher — you’re fooling yourself.”", s: "The real goal of school is growth, not just numbers." },
+        { q: "“It’s better to fail with honesty than to succeed with dishonesty.”", s: "Failure teaches. Cheating prevents learning." },
+        { q: "“Do not fear the wrong answer; fear only the unattempted problem.”", s: "A flawed attempt always teaches a lesson. An empty page offers absolutely nothing." }
+    ];
+
+    function displayRandomQuote() {
+        let qObj = integrityQuotes[Math.floor(Math.random() * integrityQuotes.length)];
+        document.getElementById('testQuote').innerText = qObj.q;
+        document.getElementById('testSubtitle').innerText = qObj.s;
+    }
+
+    /* ==================================================
+       PROBLEM GENERATORS BY CATEGORY
+       ================================================== */
+    const generators = {
+        right:[
+            // 1. Mayon Volcano
+            () => {
+                let n = getNames(1)[0];
+                let d, h, valid = false;
+                while(!valid) { d=perturb(8500,0); h=perturb(2462,0); if(d>0 && h>0) valid = true; }
+                let tanTheta = h / d, theta = Math.atan(tanTheta) * 180 / Math.PI, hyp = Math.hypot(d, h);
+                let ans1 = Number(theta.toFixed(2)), ans2 = Number(Math.round(hyp));
+                return {
+                    text: `A tourist named ${n} in Albay is taking pictures of the famous Mayon Volcano. ${n} is standing on flat ground exactly ${d} meters away from the center of the volcano's base. The height of the volcano is ${h} meters.`,
+                    q1: `What is the angle of elevation of the top of the volcano from ${n}'s location? Round your answer to 2 decimal places.`,
+                    q2: `If a drone flies in a straight line directly from ${n}'s current position to the very top of the volcano, how far would the drone fly? Round your answer to the nearest whole number (0 decimal places).`,
+                    ans1, ans2, unit1: "°", unit2: "m",
+                    steps:[
+                        `\\text{Let the angle of elevation be } \\theta. \\text{ We know Opposite (height) and Adjacent (distance).}`,
+                        `\\tan(\\theta) = \\frac{\\text{Opposite}}{\\text{Adjacent}}`,
+                        `\\tan(\\theta) = \\frac{${h}}{${d}} = ${tanTheta.toFixed(6)}`,
+                        `\\theta = \\tan^{-1}(${tanTheta.toFixed(6)}) \\approx ${ans1}^\\circ`,
+                        `\\text{For the drone's flight path (Hypotenuse):}`,
+                        `\\cos(\\theta) = \\frac{\\text{Adjacent}}{\\text{Hypotenuse}}`,
+                        `\\cos(${theta.toFixed(6)}^\\circ) = \\frac{${d}}{\\text{Hypotenuse}}`,
+                        `\\text{Hypotenuse} = \\frac{${d}}{\\cos(${theta.toFixed(6)}^\\circ)} = ${hyp.toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            },
+            // 2. Cleaning a Window
+            () => {
+                let n = getNames(1)[0];
+                let L, d, valid = false;
+                while(!valid) { L=perturb(5,0); d=perturb(1.8,1); if(d>0 && L>d) valid=true; }
+                let theta = Math.acos(d/L) * 180 / Math.PI, ans1 = Number(theta.toFixed(1));
+                let h = L * Math.sin(theta * Math.PI / 180), ans2 = Number(h.toFixed(2));
+                return {
+                    text: `A homeowner named ${n} in Manila is using a ${L}-meter long ladder to reach a window to clean it. To make sure the ladder does not slide, the base of the ladder is placed exactly ${d} meters away from the bottom of the wall.`,
+                    q1: `What is the angle that the ladder makes with the flat ground? Round your answer to 1 decimal place.`,
+                    q2: `How high is the window from the ground? Round your answer to 2 decimal places.`,
+                    ans1, ans2, unit1: "°", unit2: "m",
+                    steps:[
+                        `\\text{The ladder is the Hypotenuse, distance from the wall is Adjacent.}`,
+                        `\\cos(\\theta) = \\frac{\\text{Adjacent}}{\\text{Hypotenuse}}`,
+                        `\\cos(\\theta) = \\frac{${d}}{${L}} = ${(d/L).toFixed(6)}`,
+                        `\\theta = \\cos^{-1}(${(d/L).toFixed(6)}) \\approx ${ans1}^\\circ`,
+                        `\\text{To find the height (Opposite):}`,
+                        `\\sin(\\theta) = \\frac{\\text{Opposite}}{\\text{Hypotenuse}}`,
+                        `\\sin(${theta.toFixed(6)}^\\circ) = \\frac{\\text{Height}}{${L}}`,
+                        `\\text{Height} = ${L} \\cdot \\sin(${theta.toFixed(6)}^\\circ) = ${h.toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            },
+            // 3. Rizal Park Flagpole
+            () => {
+                let n = getNames(1)[0];
+                let d, theta, valid=false;
+                while(!valid){ d=perturb(30,0); theta=perturb(40,0); if(d>0 && theta>0 && theta<85) valid=true; }
+                let h = d * Math.tan(theta * Math.PI / 180), hyp = d / Math.cos(theta * Math.PI / 180);
+                let ans1 = Number(h.toFixed(2)), ans2 = Number(hyp.toFixed(2));
+                return {
+                    text: `${n} stands on flat ground exactly ${d} meters away from the base of the Independence Flagpole in Rizal Park, Luneta. The angle of elevation from ${n}'s feet to the top of the flagpole is exactly ${theta} degrees.`,
+                    q1: `What is the height of the flagpole? Round your answer to 2 decimal places.`,
+                    q2: `If a laser pointer is shined directly from ${n}'s feet to the top of the flagpole, how far will the laser beam travel? Round your answer to 2 decimal places.`,
+                    ans1, ans2, unit1: "m", unit2: "m",
+                    steps:[
+                        `\\text{We know the angle and the Adjacent distance. Height is Opposite.}`,
+                        `\\tan(\\theta) = \\frac{\\text{Opposite}}{\\text{Adjacent}}`,
+                        `\\tan(${theta}^\\circ) = \\frac{\\text{Height}}{${d}} \\implies \\text{Height} = ${d} \\cdot \\tan(${theta}^\\circ)`,
+                        `\\text{Height} = ${h.toFixed(6)} \\approx ${ans1} \\text{ m}`,
+                        `\\text{The laser beam represents the Hypotenuse.}`,
+                        `\\cos(\\theta) = \\frac{\\text{Adjacent}}{\\text{Hypotenuse}}`,
+                        `\\cos(${theta}^\\circ) = \\frac{${d}}{\\text{Hypotenuse}} \\implies \\text{Hypotenuse} = \\frac{${d}}{\\cos(${theta}^\\circ)}`,
+                        `\\text{Hypotenuse} = ${hyp.toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            },
+            // 4. Helicopter over EDSA
+            () => {
+                let h, alpha, beta, valid=false;
+                while(!valid){ h=perturb(150,0); alpha=perturb(45,0); beta=perturb(30,0); if(h>0 && alpha>beta && alpha<85 && beta>5) valid=true; }
+                let dA = h / Math.sin(alpha*Math.PI/180);
+                let xA = h / Math.tan(alpha*Math.PI/180), xB = h / Math.tan(beta*Math.PI/180);
+                let ans1 = Number(dA.toFixed(2)), ans2 = Number((xB - xA).toFixed(2));
+                return {
+                    text: `A news helicopter is hovering exactly ${h} meters above EDSA. The pilot looks forward and spots two cars in the same lane. The angle of depression to Car A (the closer car) is ${alpha} degrees, and the angle of depression to Car B (the farther car) is ${beta} degrees.`,
+                    q1: `What is the direct line-of-sight distance from the helicopter to Car A? Round to 2 decimal places.`,
+                    q2: `What is the distance between Car A and Car B on the ground? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "m", unit2: "m",
+                    steps:[
+                        `\\text{Angle of depression from helicopter equals angle of elevation from the car.}`,
+                        `\\text{Line-of-sight to Car A is the Hypotenuse. Altitude is Opposite.}`,
+                        `\\sin(\\theta) = \\frac{\\text{Opposite}}{\\text{Hypotenuse}} \\implies \\sin(${alpha}^\\circ) = \\frac{${h}}{\\text{Hypotenuse}}`,
+                        `\\text{Hypotenuse} = \\frac{${h}}{\\sin(${alpha}^\\circ)} = ${dA.toFixed(6)} \\approx ${ans1} \\text{ m}`,
+                        `\\text{To find ground distance between cars, find horizontal distances (Adjacent).}`,
+                        `\\tan(\\theta) = \\frac{\\text{Opposite}}{\\text{Adjacent}} \\implies \\text{Adjacent} = \\frac{\\text{Opposite}}{\\tan(\\theta)}`,
+                        `\\text{Dist to Car A } (x_A) = \\frac{${h}}{\\tan(${alpha}^\\circ)} = ${xA.toFixed(6)} \\text{ m}`,
+                        `\\text{Dist to Car B } (x_B) = \\frac{${h}}{\\tan(${beta}^\\circ)} = ${xB.toFixed(6)} \\text{ m}`,
+                        `\\text{Distance between cars} = x_B - x_A = ${xB.toFixed(6)} - ${xA.toFixed(6)} = ${(xB-xA).toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            },
+            // 5. BGC Office Windows
+            () => {
+                let n = getNames(1)[0];
+                let h, alpha, beta, valid=false;
+                while(!valid){ h=perturb(50,0); alpha=perturb(35,0); beta=perturb(25,0); if(h>0 && alpha>0 && beta>0) valid=true; }
+                let d = h / Math.tan(beta*Math.PI/180);
+                let h_top = d * Math.tan(alpha*Math.PI/180);
+                let ans1 = Number(d.toFixed(2)), ans2 = Number((h + h_top).toFixed(2));
+                return {
+                    text: `${n} is looking out of an office window in BGC, which is ${h} meters above the ground. Directly across the street is a taller skyscraper. The angle of elevation to the top of the skyscraper is ${alpha} degrees. The angle of depression to the base of the skyscraper is ${beta} degrees.`,
+                    q1: `What is the horizontal distance between the two buildings? Round to 2 decimal places.`,
+                    q2: `What is the total height of the taller skyscraper? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "m", unit2: "m",
+                    steps:[
+                        `\\text{Horizontal distance } d \\text{ is Adjacent. Base height } ${h} \\text{ is Opposite.}`,
+                        `\\tan(\\text{Depression}) = \\frac{\\text{Opposite}}{\\text{Adjacent}}`,
+                        `\\tan(${beta}^\\circ) = \\frac{${h}}{d} \\implies d = \\frac{${h}}{\\tan(${beta}^\\circ)} = ${d.toFixed(6)} \\approx ${ans1} \\text{ m}`,
+                        `\\text{Height above window } (h_{top}) \\text{ is Opposite the angle of elevation.}`,
+                        `\\tan(\\text{Elevation}) = \\frac{\\text{Opposite}}{\\text{Adjacent}} \\implies \\tan(${alpha}^\\circ) = \\frac{h_{top}}{${d.toFixed(6)}}`,
+                        `h_{top} = ${d.toFixed(6)} \\cdot \\tan(${alpha}^\\circ) = ${h_top.toFixed(6)} \\text{ m}`,
+                        `\\text{Total height} = \\text{Base height} + h_{top} = ${h} + ${h_top.toFixed(6)} = ${(h+h_top).toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            },
+            // 6. Bangui Windmills
+            () => {
+                let n = getNames(1)[0];
+                let h, alpha, beta, valid=false;
+                while(!valid){ h=perturb(70,0); alpha=perturb(20,0); beta=perturb(40,0); if(h>0 && beta>alpha && beta<85) valid=true; }
+                let dA = h / Math.tan(alpha*Math.PI/180);
+                let dB = h / Math.tan(beta*Math.PI/180);
+                let ans1 = Number(dA.toFixed(2)), ans2 = Number((dA - dB).toFixed(2));
+                return {
+                    text: `A photographer named ${n} is taking pictures of a windmill in Bangui, Ilocos Norte, known to be ${h} meters tall. From their current position (Point A), the angle of elevation to the top of the windmill is ${alpha} degrees. ${n} then walks in a straight line directly toward the windmill until reaching Point B, where the angle of elevation is now ${beta} degrees.`,
+                    q1: `What is the horizontal distance from the base of the windmill to Point A? Round to 2 decimal places.`,
+                    q2: `How many meters did ${n} walk from Point A to Point B? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "m", unit2: "m",
+                    steps:[
+                        `\\text{Height } h \\text{ is Opposite. Horizontal distance is Adjacent.}`,
+                        `\\tan(\\theta) = \\frac{\\text{Opposite}}{\\text{Adjacent}} \\implies \\text{Adjacent} = \\frac{\\text{Opposite}}{\\tan(\\theta)}`,
+                        `\\text{Distance to A } (d_A) = \\frac{${h}}{\\tan(${alpha}^\\circ)} = ${dA.toFixed(6)} \\approx ${ans1} \\text{ m}`,
+                        `\\text{Distance to B } (d_B) = \\frac{${h}}{\\tan(${beta}^\\circ)} = ${dB.toFixed(6)} \\text{ m}`,
+                        `\\text{Distance walked} = d_A - d_B = ${dA.toFixed(6)} - ${dB.toFixed(6)} = ${(dA-dB).toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            }
+        ],
+        sines:[
+            // 1. Hot Air Balloon
+            () => {
+                let n = getNames(2);
+                let d, angJ, angM, valid = false;
+                while(!valid) { d=perturb(120,0); angJ=perturb(42,0); angM=perturb(55,0); if(d>0 && angJ>0 && angM>0 && (angJ+angM)<170) valid=true; }
+                let angB = 180 - angJ - angM;
+                let dJose = (d * Math.sin(angM*Math.PI/180)) / Math.sin(angB*Math.PI/180), ans1 = Number(dJose.toFixed(2));
+                let dMaria = (d * Math.sin(angJ*Math.PI/180)) / Math.sin(angB*Math.PI/180), ans2 = Number(dMaria.toFixed(2));
+                return {
+                    text: `During the hot air balloon festival in Clark, Pampanga, two friends, ${n[0]} and ${n[1]}, are standing ${d} meters apart on flat ground. They are looking at a hot air balloon that is flying directly above the imaginary line connecting them. The angle of elevation from ${n[0]} to the balloon is ${angJ} degrees. The angle of elevation from ${n[1]} to the balloon is ${angM} degrees.`,
+                    q1: `What is the straight-line distance from ${n[0]} to the balloon? Round your answer to 2 decimal places.`,
+                    q2: `What is the straight-line distance from ${n[1]} to the balloon? Round your answer to 2 decimal places.`,
+                    ans1, ans2, unit1: "m", unit2: "m",
+                    steps:[
+                        `\\text{Let } A \\text{ be } ${n[0]} \\text{, } B \\text{ be } ${n[1]} \\text{, and } C \\text{ be the balloon.}`,
+                        `\\text{Angle } C = 180^\\circ - \\text{Angle } A - \\text{Angle } B = 180^\\circ - ${angJ}^\\circ - ${angM}^\\circ = ${angB}^\\circ`,
+                        `\\text{Law of Sines: } \\frac{a}{\\sin(A)} = \\frac{b}{\\sin(B)} = \\frac{c}{\\sin(C)}`,
+                        `\\text{Dist from } ${n[0]} \\text{ to balloon (side } b \\text{, opposite } ${n[1]}\\text{):}`,
+                        `\\frac{b}{\\sin(${angM}^\\circ)} = \\frac{${d}}{\\sin(${angB}^\\circ)} \\implies b = \\frac{${d} \\cdot \\sin(${angM}^\\circ)}{\\sin(${angB}^\\circ)} = ${dJose.toFixed(6)} \\approx ${ans1} \\text{ m}`,
+                        `\\text{Dist from } ${n[1]} \\text{ to balloon (side } a \\text{, opposite } ${n[0]}\\text{):}`,
+                        `\\frac{a}{\\sin(${angJ}^\\circ)} = \\frac{${d}}{\\sin(${angB}^\\circ)} \\implies a = \\frac{${d} \\cdot \\sin(${angJ}^\\circ)}{\\sin(${angB}^\\circ)} = ${dMaria.toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            },
+            // 2. Lighthouses
+            () => {
+                let c, C, A, valid = false;
+                while(!valid) { c=perturb(28,0); C=perturb(45,0); A=perturb(65,0); if(c>0 && C>0 && A>0 && (C+A)<170) valid=true; }
+                let B = 180 - C - A;
+                let a = c*Math.sin(A*Math.PI/180)/Math.sin(C*Math.PI/180), ans1 = Number(a.toFixed(2));
+                let b = c*Math.sin(B*Math.PI/180)/Math.sin(C*Math.PI/180);
+                let halfC = c/2, dSq = b*b + halfC*halfC - 2*b*halfC*Math.cos(A*Math.PI/180), d = Math.sqrt(dSq), ans2 = Number(d.toFixed(2));
+                return {
+                    text: `A fishing boat spots two lighthouses on the coast, Parola A and Parola B. The straight-line distance between Parola A and Parola B is known to be ${c} kilometers. From the boat's location, the angle between the lines of sight to the two lighthouses is ${C} degrees. The angle formed at Parola A by the lines pointing to Parola B and to the boat is ${A} degrees.`,
+                    q1: `What is the straight-line distance from the fishing boat to Parola B? Round your answer to 2 decimal places.`,
+                    q2: `If another fishing boat drops its anchor exactly halfway between Parola A and Parola B, what is the distance from the first fishing boat to this second boat? Round your answer to 2 decimal places.`,
+                    ans1, ans2, unit1: "km", unit2: "km",
+                    steps:[
+                        `\\text{Let the boat be } C \\text{. Angle } C = ${C}^\\circ \\text{. Angle } A = ${A}^\\circ \\text{. Side } c = ${c} \\text{ km.}`,
+                        `\\text{Angle } B = 180^\\circ - ${C}^\\circ - ${A}^\\circ = ${B}^\\circ`,
+                        `\\text{Law of Sines: } \\frac{a}{\\sin(A)} = \\frac{c}{\\sin(C)} \\text{ to find distance to Parola B (side } a \\text{).}`,
+                        `\\frac{a}{\\sin(${A}^\\circ)} = \\frac{${c}}{\\sin(${C}^\\circ)} \\implies a = \\frac{${c} \\cdot \\sin(${A}^\\circ)}{\\sin(${C}^\\circ)} = ${a.toFixed(6)} \\approx ${ans1} \\text{ km}`,
+                        `\\text{Dist from boat to Parola A (side } b \\text{): } b = \\frac{${c} \\cdot \\sin(${B}^\\circ)}{\\sin(${C}^\\circ)} = ${b.toFixed(6)} \\text{ km}`,
+                        `\\text{For the second question, the midpoint is } ${halfC} \\text{ km from Parola A. Use Law of Cosines for new triangle: }`,
+                        `d^2 = b^2 + (c/2)^2 - 2b(c/2)\\cos(A)`,
+                        `d^2 = ${b.toFixed(6)}^2 + ${halfC}^2 - 2(${b.toFixed(6)})(${halfC}) \\cos(${A}^\\circ) = ${dSq.toFixed(6)}`,
+                        `d = \\sqrt{${dSq.toFixed(6)}} = ${d.toFixed(6)} \\approx ${ans2} \\text{ km}`
+                    ]
+                };
+            },
+            // 3. Mt Pulag Camping Trail
+            () => {
+                let n = getNames(1)[0];
+                let a, b, A, valid = false;
+                while(!valid) { a=perturb(6.2,1); b=perturb(4.5,1); A=perturb(48,0); if(a>0 && b>0 && A>0 && A<170 && (b*Math.sin(A*Math.PI/180)/a)<1) valid=true; }
+                let sinB = (b*Math.sin(A*Math.PI/180))/a, B = Math.asin(sinB)*180/Math.PI, ans1 = Number(B.toFixed(2));
+                let C = 180 - A - B, c = a*Math.sin(C*Math.PI/180)/Math.sin(A*Math.PI/180), ans2 = Number(c.toFixed(2));
+                return {
+                    text: `A group of hikers including ${n} is exploring Mt. Pulag. The straight-line distance from Camp 1 to Camp 2 is ${a} kilometers. The straight-line distance from the Ranger Station to Camp 2 is ${b} kilometers. Standing at the Ranger Station, ${n} measures the angle formed by their lines of sight pointing to Camp 1 and Camp 2, which is exactly ${A} degrees.`,
+                    q1: `What is the measure of the angle at Camp 1 (formed by the lines of sight pointing to the Ranger Station and Camp 2)? Round your answer to 2 decimal places.`,
+                    q2: `The hikers want to know the straight-line distance from the Ranger Station directly to Camp 1. Calculate this missing distance. Round your final answer to 2 decimal places.`,
+                    ans1, ans2, unit1: "°", unit2: "km",
+                    steps:[
+                        `\\text{Let Ranger Station be } A \\text{, Camp 1 be } B \\text{, and Camp 2 be } C \\text{.}`,
+                        `\\text{Law of Sines: } \\frac{\\sin(B)}{b} = \\frac{\\sin(A)}{a}`,
+                        `\\frac{\\sin(B)}{${b}} = \\frac{\\sin(${A}^\\circ)}{${a}} \\implies \\sin(B) = \\frac{${b} \\cdot \\sin(${A}^\\circ)}{${a}} = ${sinB.toFixed(6)}`,
+                        `B = \\sin^{-1}(${sinB.toFixed(6)}) = ${B.toFixed(6)}^\\circ \\approx ${ans1}^\\circ`,
+                        `\\text{Angle } C = 180^\\circ - ${A}^\\circ - ${B.toFixed(6)}^\\circ = ${C.toFixed(6)}^\\circ`,
+                        `\\text{Law of Sines to find distance } c \\text{ (Ranger to Camp 1): } \\frac{c}{\\sin(C)} = \\frac{a}{\\sin(A)}`,
+                        `\\frac{c}{\\sin(${C.toFixed(6)}^\\circ)} = \\frac{${a}}{\\sin(${A}^\\circ)} \\implies c = \\frac{${a} \\cdot \\sin(${C.toFixed(6)}^\\circ)}{\\sin(${A}^\\circ)} = ${c.toFixed(6)} \\approx ${ans2} \\text{ km}`
+                    ]
+                };
+            },
+            // 4. Zamboanga Vinta
+            () => {
+                let a, b, A, valid = false;
+                while(!valid) { a=perturb(850,0); b=perturb(600,0); A=perturb(55,0); if(a>0 && b>0 && A>0 && A<170 && (b*Math.sin(A*Math.PI/180)/a)<1) valid=true; }
+                let sinB = (b*Math.sin(A*Math.PI/180))/a, B = Math.asin(sinB)*180/Math.PI, ans1 = Number(B.toFixed(2));
+                let C = 180 - A - B, c = a*Math.sin(C*Math.PI/180)/Math.sin(A*Math.PI/180), ans2 = Number(c.toFixed(2));
+                return {
+                    text: `During the Regatta de Zamboanga, a vinta boat race course is marked by three floating buoys forming a triangle: Buoy 1, Buoy 2, and Buoy 3. The straight-line distance from Buoy 2 to Buoy 3 is ${a} meters. The straight-line distance from Buoy 1 to Buoy 3 is ${b} meters. From the perspective of a judge boat stationed exactly at Buoy 1, the angle between the lines of sight looking at Buoy 2 and Buoy 3 is ${A} degrees.`,
+                    q1: `What is the measure of the angle at Buoy 2? Round your answer to 2 decimal places.`,
+                    q2: `The race organizers need to know the exact distance from Buoy 1 to Buoy 2 to complete the course map. Calculate this distance. Round your final answer to 2 decimal places.`,
+                    ans1, ans2, unit1: "°", unit2: "m",
+                    steps:[
+                        `\\text{Let Buoy 1 be } A \\text{, Buoy 2 be } B \\text{, and Buoy 3 be } C \\text{.}`,
+                        `\\text{Law of Sines: } \\frac{\\sin(B)}{b} = \\frac{\\sin(A)}{a}`,
+                        `\\frac{\\sin(B)}{${b}} = \\frac{\\sin(${A}^\\circ)}{${a}} \\implies \\sin(B) = \\frac{${b} \\cdot \\sin(${A}^\\circ)}{${a}} = ${sinB.toFixed(6)}`,
+                        `B = \\sin^{-1}(${sinB.toFixed(6)}) = ${B.toFixed(6)}^\\circ \\approx ${ans1}^\\circ`,
+                        `\\text{Angle } C = 180^\\circ - ${A}^\\circ - ${B.toFixed(6)}^\\circ = ${C.toFixed(6)}^\\circ`,
+                        `\\text{Distance } c = \\frac{${a} \\cdot \\sin(${C.toFixed(6)}^\\circ)}{\\sin(${A}^\\circ)} = ${c.toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            },
+            // 5. San Juanico Bridge
+            () => {
+                let n = getNames(2);
+                let c, alpha, beta, valid=false;
+                while(!valid){ c=perturb(100,0); alpha=perturb(50,0); beta=perturb(60,0); if(alpha>0 && beta>0 && alpha+beta<170) valid=true; }
+                let gamma = 180 - alpha - beta;
+                let b = c * Math.sin(beta*Math.PI/180) / Math.sin(gamma*Math.PI/180);
+                let a = c * Math.sin(alpha*Math.PI/180) / Math.sin(gamma*Math.PI/180);
+                let ans1 = Number(b.toFixed(2)), ans2 = Number(a.toFixed(2));
+                return {
+                    text: `Two tourists, ${n[0]} on the Samar side and ${n[1]} on the Leyte side, are standing on the San Juanico Bridge exactly ${c} meters apart. They are both looking at a fishing boat in the water below. The angle formed at ${n[0]} (between ${n[1]} and the boat) is ${alpha} degrees. The angle formed at ${n[1]} is ${beta} degrees.`,
+                    q1: `What is the straight-line distance from ${n[0]} to the boat? Round to 2 decimal places.`,
+                    q2: `What is the straight-line distance from ${n[1]} to the boat? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "m", unit2: "m",
+                    steps:[
+                        `\\text{Angle at the boat } (\\gamma) = 180^\\circ - ${alpha}^\\circ - ${beta}^\\circ = ${gamma}^\\circ`,
+                        `\\text{Law of Sines: } \\frac{a}{\\sin(A)} = \\frac{b}{\\sin(B)} = \\frac{c}{\\sin(C)}`,
+                        `\\text{Distance from } ${n[0]} \\text{ (side opposite } ${n[1]}\\text{): } \\frac{b}{\\sin(${beta}^\\circ)} = \\frac{${c}}{\\sin(${gamma}^\\circ)}`,
+                        `b = \\frac{${c} \\cdot \\sin(${beta}^\\circ)}{\\sin(${gamma}^\\circ)} = ${b.toFixed(6)} \\approx ${ans1} \\text{ m}`,
+                        `\\text{Distance from } ${n[1]} \\text{ (side opposite } ${n[0]}\\text{): } \\frac{a}{\\sin(${alpha}^\\circ)} = \\frac{${c}}{\\sin(${gamma}^\\circ)}`,
+                        `a = \\frac{${c} \\cdot \\sin(${alpha}^\\circ)}{\\sin(${gamma}^\\circ)} = ${a.toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            },
+            // 6. Carmona Paragliding
+            () => {
+                let n = getNames(1)[0];
+                let c, alpha, beta, valid=false;
+                while(!valid){ c=perturb(150,0); alpha=perturb(55,0); beta=perturb(45,0); if(alpha>0 && beta>0 && alpha+beta<170) valid=true; }
+                let P = 180 - alpha - beta;
+                let d1 = c * Math.sin(beta*Math.PI/180) / Math.sin(P*Math.PI/180);
+                let h = d1 * Math.sin(alpha*Math.PI/180);
+                let ans1 = Number(d1.toFixed(2)), ans2 = Number(h.toFixed(2));
+                return {
+                    text: `During a paragliding event in Carmona, Cavite, a paraglider named ${n} is flying above a flat field. Two markers on the ground, Marker 1 and Marker 2, are exactly ${c} meters apart. ${n} is located vertically between the two markers. The angle of elevation from Marker 1 to ${n} is ${alpha} degrees, and from Marker 2 is ${beta} degrees.`,
+                    q1: `What is the direct straight-line distance from Marker 1 to the paraglider? Round to 2 decimal places.`,
+                    q2: `What is the vertical height of the paraglider above the ground? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "m", unit2: "m",
+                    steps:[
+                        `\\text{Angle at paraglider } (P) = 180^\\circ - ${alpha}^\\circ - ${beta}^\\circ = ${P}^\\circ`,
+                        `\\text{Law of Sines: } \\frac{d_1}{\\sin(\\text{Marker 2})} = \\frac{c}{\\sin(P)}`,
+                        `\\text{Distance from Marker 1 } (d_1) = \\frac{${c} \\cdot \\sin(${beta}^\\circ)}{\\sin(${P}^\\circ)} = ${d1.toFixed(6)} \\approx ${ans1} \\text{ m}`,
+                        `\\text{Drop a vertical line from the paraglider to form a right triangle with Marker 1.}`,
+                        `\\sin(\\text{Elevation}) = \\frac{\\text{Opposite (Height)}}{\\text{Hypotenuse } (d_1)}`,
+                        `\\text{Height} = ${d1.toFixed(6)} \\cdot \\sin(${alpha}^\\circ) = ${h.toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            },
+            // 7. Davao Cell Towers
+            () => {
+                let c, b, beta, valid=false;
+                while(!valid){ c=perturb(5,1); b=perturb(8,1); beta=perturb(35,0); if(b>c && beta>0 && beta<90) valid=true; }
+                let sinP = c * Math.sin(beta*Math.PI/180) / b;
+                let P = Math.asin(sinP) * 180 / Math.PI;
+                let A = 180 - beta - P;
+                let distB = b * Math.sin(A*Math.PI/180) / Math.sin(beta*Math.PI/180);
+                let ans1 = Number(P.toFixed(2)), ans2 = Number(distB.toFixed(2));
+                return {
+                    text: `Cell Tower A and Cell Tower B in Davao are located ${c} kilometers apart. A smartphone is receiving signals from both towers. The phone is ${b} kilometers away from Tower A. The angle formed at Tower B (between Tower A and the phone) is ${beta} degrees.`,
+                    q1: `What is the angle formed at the phone's location (between the two lines of sight to the towers)? Round to 2 decimal places.`,
+                    q2: `What is the distance from Tower B to the phone? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "°", unit2: "km",
+                    steps:[
+                        `\\text{Law of Sines: } \\frac{\\sin(\\text{Phone})}{c} = \\frac{\\sin(\\text{Tower B})}{b}`,
+                        `\\frac{\\sin(\\text{Phone})}{${c}} = \\frac{\\sin(${beta}^\\circ)}{${b}} \\implies \\sin(\\text{Phone}) = \\frac{${c} \\cdot \\sin(${beta}^\\circ)}{${b}} = ${sinP.toFixed(6)}`,
+                        `\\text{Phone Angle} = \\sin^{-1}(${sinP.toFixed(6)}) = ${P.toFixed(6)}^\\circ \\approx ${ans1}^\\circ`,
+                        `\\text{Angle at Tower A} = 180^\\circ - ${beta}^\\circ - ${P.toFixed(6)}^\\circ = ${A.toFixed(6)}^\\circ`,
+                        `\\text{Distance from Tower B} = \\frac{${b} \\cdot \\sin(${A.toFixed(6)}^\\circ)}{\\sin(${beta}^\\circ)} = ${distB.toFixed(6)} \\approx ${ans2} \\text{ km}`
+                    ]
+                };
+            },
+            // 8. Siargao Drone
+            () => {
+                let n = getNames(2);
+                let dx, dy, alpha, valid=false;
+                while(!valid){ dx=perturb(40,0); dy=perturb(50,0); alpha=perturb(60,0); if(dy > dx*Math.sin(alpha*Math.PI/180) && dy > dx) valid=true; }
+                let sinY = dx * Math.sin(alpha*Math.PI/180) / dy;
+                let Y = Math.asin(sinY) * 180 / Math.PI;
+                let D = 180 - alpha - Y;
+                let dist = dy * Math.sin(D*Math.PI/180) / Math.sin(alpha*Math.PI/180);
+                let ans1 = Number(Y.toFixed(2)), ans2 = Number(dist.toFixed(2));
+                return {
+                    text: `A drone is hovering over Cloud 9 in Siargao to film two surfers, ${n[0]} and ${n[1]}. The straight-line distance from the drone to ${n[0]} is ${dx} meters, and the distance from the drone to ${n[1]} is ${dy} meters. The angle of elevation from ${n[0]} looking up at the drone is ${alpha} degrees. Assume both surfers are on the same sea level (flat water).`,
+                    q1: `What is the angle of elevation from ${n[1]} looking up at the drone? Round to 2 decimal places.`,
+                    q2: `How far apart are the two surfers from each other? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "°", unit2: "m",
+                    steps:[
+                        `\\text{We form a triangle with the drone, } ${n[0]} \\text{, and } ${n[1]}.`,
+                        `\\text{Law of Sines: } \\frac{\\sin(\\text{Angle } ${n[1]})}{\\text{Side opp } ${n[1]}} = \\frac{\\sin(\\text{Angle } ${n[0]})}{\\text{Side opp } ${n[0]}}`,
+                        `\\frac{\\sin(\\text{Angle } ${n[1]})}{${dx}} = \\frac{\\sin(${alpha}^\\circ)}{${dy}}`,
+                        `\\sin(\\text{Angle } ${n[1]}) = \\frac{${dx} \\cdot \\sin(${alpha}^\\circ)}{${dy}} = ${sinY.toFixed(6)}`,
+                        `\\text{Angle } ${n[1]} = \\sin^{-1}(${sinY.toFixed(6)}) = ${Y.toFixed(6)}^\\circ \\approx ${ans1}^\\circ`,
+                        `\\text{Drone Angle} = 180^\\circ - ${alpha}^\\circ - ${Y.toFixed(6)}^\\circ = ${D.toFixed(6)}^\\circ`,
+                        `\\text{Law of Sines for the distance between the surfers (side opposite the drone):}`,
+                        `\\frac{\\text{Distance}}{\\sin(${D.toFixed(6)}^\\circ)} = \\frac{${dy}}{\\sin(${alpha}^\\circ)} \\implies \\text{Distance} = \\frac{${dy} \\cdot \\sin(${D.toFixed(6)}^\\circ)}{\\sin(${alpha}^\\circ)} = ${dist.toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            }
+        ],
+        cosines:[
+            // 1. Burnham Park Garden
+            () => {
+                let a, b, c, valid = false;
+                while(!valid) { a=perturb(8,0); b=perturb(11,0); c=perturb(15,0); let arr=[a,b,c].sort((x,y)=>x-y); a=arr[0]; b=arr[1]; c=arr[2]; if(a+b > c+0.1) valid=true; }
+                let cosC = (a*a + b*b - c*c)/(2*a*b), angC = Math.acos(cosC)*180/Math.PI, ans1 = Number(angC.toFixed(1));
+                let sinA = (a*Math.sin(angC*Math.PI/180))/c, angA = Math.asin(sinA)*180/Math.PI, ans2 = Number(angA.toFixed(1));
+                return {
+                    text: `A newly landscaped triangular flower garden in Burnham Park, Baguio City, has side borders measuring ${a} meters, ${b} meters, and ${c} meters.`,
+                    q1: `What is the measure of the angle opposite the longest side of the garden? Round your answer to 1 decimal place.`,
+                    q2: `What is the measure of the angle opposite the shortest side of the garden? Round your answer to 1 decimal place.`,
+                    ans1, ans2, unit1: "°", unit2: "°",
+                    steps:[
+                        `\\text{Longest side is } c = ${c} \\text{. Use Law of Cosines to find Angle } C \\text{:}`,
+                        `\\cos(C) = \\frac{a^2 + b^2 - c^2}{2ab}`,
+                        `\\cos(C) = \\frac{${a}^2 + ${b}^2 - ${c}^2}{2(${a})(${b})} = \\frac{${a*a+b*b-c*c}}{${2*a*b}} = ${cosC.toFixed(6)}`,
+                        `C = \\cos^{-1}(${cosC.toFixed(6)}) = ${angC.toFixed(6)}^\\circ \\approx ${ans1}^\\circ`,
+                        `\\text{Shortest side is } a = ${a} \\text{. Use Law of Sines to find Angle } A \\text{:}`,
+                        `\\frac{\\sin(A)}{a} = \\frac{\\sin(C)}{c} \\implies \\sin(A) = \\frac{${a} \\cdot \\sin(${angC.toFixed(6)}^\\circ)}{${c}} = ${sinA.toFixed(6)}`,
+                        `A = \\sin^{-1}(${sinA.toFixed(6)}) = ${angA.toFixed(6)}^\\circ \\approx ${ans2}^\\circ`
+                    ]
+                };
+            },
+            // 2. Bohol Zipline
+            () => {
+                let a, b, C, valid = false;
+                while(!valid) { a=perturb(150,0); b=perturb(200,0); C=perturb(110,0); if(a>0 && b>0 && C>90 && C<170) valid=true; }
+                let cSq = a*a + b*b - 2*a*b*Math.cos(C*Math.PI/180), c = Math.sqrt(cSq), ans1 = Number(c.toFixed(1));
+                let sinA = (b*Math.sin(C*Math.PI/180))/c, angA = Math.asin(sinA)*180/Math.PI, ans2 = Number(angA.toFixed(1));
+                return {
+                    text: `A zipline in Bohol is built connecting the tops of Cliff A and Cliff B. From a viewpoint directly between the cliffs, a guide measures the distance to the top of Cliff A as ${a} meters, and distance to the top of Cliff B as ${b} meters. The angle between the two lines of sight is ${C} degrees.`,
+                    q1: `What is the direct distance between the top of Cliff A and the top of Cliff B? Round your answer to 1 decimal place.`,
+                    q2: `From the top of Cliff A, what is the angle between the viewpoint on the ground and the top of Cliff B? Round your answer to 1 decimal place.`,
+                    ans1, ans2, unit1: "m", unit2: "°",
+                    steps:[
+                        `\\text{Let } c \\text{ be the distance between cliffs. Use Law of Cosines: }`,
+                        `c^2 = a^2 + b^2 - 2ab \\cos(C)`,
+                        `c^2 = ${a}^2 + ${b}^2 - 2(${a})(${b}) \\cos(${C}^\\circ) = ${cSq.toFixed(6)}`,
+                        `c = \\sqrt{${cSq.toFixed(6)}} = ${c.toFixed(6)} \\approx ${ans1} \\text{ m}`,
+                        `\\text{Use Law of Sines to find the angle at Cliff A (opposite } ${b} \\text{ m):}`,
+                        `\\frac{\\sin(\\text{Angle A})}{b} = \\frac{\\sin(C)}{c} \\implies \\sin(\\text{Angle A}) = \\frac{${b} \\cdot \\sin(${C}^\\circ)}{${c.toFixed(6)}} = ${sinA.toFixed(6)}`,
+                        `\\text{Angle A} = \\sin^{-1}(${sinA.toFixed(6)}) = ${angA.toFixed(6)}^\\circ \\approx ${ans2}^\\circ`
+                    ]
+                };
+            },
+            // 3. Land Surveying
+            () => {
+                let c, b, A, valid = false;
+                while(!valid) { c=perturb(45,0); b=perturb(60,0); A=perturb(75,0); if(c>0 && b>0 && A>0 && A<170) valid=true; }
+                let aSq = b*b + c*c - 2*b*c*Math.cos(A*Math.PI/180), a = Math.sqrt(aSq), ans1 = Number(a.toFixed(2));
+                let halfB = b/2, xSq = c*c + halfB*halfB - 2*c*halfB*Math.cos(A*Math.PI/180), x = Math.sqrt(xSq), ans2 = Number(x.toFixed(2));
+                return {
+                    text: `A surveyor in Mindanao is measuring a triangular agricultural plot of land. Standing at Corner A, he measures the straight-line distance to Corner B as ${c} meters, and the distance to Corner C as ${b} meters. The angle formed at Corner A by his lines of sight to Corner B and Corner C is exactly ${A} degrees.`,
+                    q1: `What is the length of the fence needed to directly connect Corner B and Corner C? Round your answer to 2 decimal places.`,
+                    q2: `The surveyor divides the land by creating a straight fence from Corner B to the exact midpoint of the border connecting Corner A and Corner C. What is the length of this new fence? Round your answer to 2 decimal places.`,
+                    ans1, ans2, unit1: "m", unit2: "m",
+                    steps:[
+                        `\\text{Use Law of Cosines for triangle ABC to find side BC (which is } a \\text{):}`,
+                        `a^2 = b^2 + c^2 - 2bc \\cos(A)`,
+                        `a^2 = ${b}^2 + ${c}^2 - 2(${b})(${c}) \\cos(${A}^\\circ) = ${aSq.toFixed(6)}`,
+                        `a = \\sqrt{${aSq.toFixed(6)}} = ${a.toFixed(6)} \\approx ${ans1} \\text{ m}`,
+                        `\\text{Midpoint of AC is } ${halfB} \\text{ m away from Corner A.}`,
+                        `\\text{Use Law of Cosines on the new triangle: }`,
+                        `x^2 = ${c}^2 + ${halfB}^2 - 2(${c})(${halfB}) \\cos(${A}^\\circ) = ${xSq.toFixed(6)}`,
+                        `x = \\sqrt{${xSq.toFixed(6)}} = ${x.toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            },
+            // 4. Airplane Tracking
+            () => {
+                let c, a, b, valid = false;
+                while(!valid) { c=perturb(15,0); b=perturb(12,0); a=perturb(14,0); let arr=[a,b,c].sort((x,y)=>x-y); if(arr[0]+arr[1] > arr[2]+0.1) valid=true; }
+                let cosS1 = (b*b + c*c - a*a)/(2*b*c), angS1 = Math.acos(cosS1)*180/Math.PI, ans1 = Number(angS1.toFixed(2));
+                let sinS2 = (b*Math.sin(angS1*Math.PI/180))/a, angS2 = Math.asin(sinS2)*180/Math.PI, ans2 = Number(angS2.toFixed(2));
+                return {
+                    text: `A commercial airplane is flying over Metro Manila. Two tracking stations on the ground, Station 1 and Station 2, are exactly ${c} kilometers apart. The direct distance from Station 1 to the airplane is ${b} kilometers. The direct distance from Station 2 to the airplane is ${a} kilometers.`,
+                    q1: `What is the angle of elevation of the airplane from the perspective of Station 1? Round your answer to 2 decimal places.`,
+                    q2: `What is the angle of elevation of the airplane from the perspective of Station 2? Round your answer to 2 decimal places.`,
+                    ans1, ans2, unit1: "°", unit2: "°",
+                    steps:[
+                        `\\text{We need Angle at Station 1 (opposite side } a = ${a} \\text{). Use Law of Cosines:}`,
+                        `\\cos(\\text{Station 1}) = \\frac{b^2 + c^2 - a^2}{2bc} = \\frac{${b}^2 + ${c}^2 - ${a}^2}{2(${b})(${c})} = ${cosS1.toFixed(6)}`,
+                        `\\text{Station 1} = \\cos^{-1}(${cosS1.toFixed(6)}) = ${angS1.toFixed(6)}^\\circ \\approx ${ans1}^\\circ`,
+                        `\\text{Use Law of Sines for Angle at Station 2 (opposite side } b = ${b} \\text{):}`,
+                        `\\frac{\\sin(\\text{Station 2})}{b} = \\frac{\\sin(\\text{Station 1})}{a} \\implies \\sin(\\text{Station 2}) = \\frac{${b} \\cdot \\sin(${angS1.toFixed(6)}^\\circ)}{${a}} = ${sinS2.toFixed(6)}`,
+                        `\\text{Station 2} = \\sin^{-1}(${sinS2.toFixed(6)}) = ${angS2.toFixed(6)}^\\circ \\approx ${ans2}^\\circ`
+                    ]
+                };
+            },
+            // 5. Biking Trails
+            () => {
+                let n = getNames(3);
+                let x, y, z, valid = false;
+                while(!valid) { x=perturb(5,0); y=perturb(7,0); z=perturb(8,0); let arr=[x,y,z].sort((i,j)=>i-j); if(arr[0]+arr[1] > arr[2]+0.1) valid=true; }
+                let cosXY = (x*x + y*y - z*z)/(2*x*y), angXY = Math.acos(cosXY)*180/Math.PI, ans1 = Number(angXY.toFixed(1));
+                let cosYZ = (y*y + z*z - x*x)/(2*y*z), angYZ = Math.acos(cosYZ)*180/Math.PI, ans2 = Number(angYZ.toFixed(1));
+                return {
+                    text: `Three friends, ${n[0]}, ${n[1]}, and ${n[2]} in Cebu are riding their mountain bikes. They start at a common crossroad. Trail X is exactly ${x} kilometers long. Trail Y is exactly ${y} kilometers long. Trail Z connects the end of Trail X and the end of Trail Y and is exactly ${z} kilometers long.`,
+                    q1: `What is the angle between Trail X and Trail Y at the crossroad? Round your answer to 1 decimal place.`,
+                    q2: `What is the angle between Trail Y and Trail Z? Round your answer to 1 decimal place.`,
+                    ans1, ans2, unit1: "°", unit2: "°",
+                    steps:[
+                        `\\text{The angle between Trail X and Y is opposite Trail Z (side } ${z} \\text{). Law of Cosines:}`,
+                        `\\cos(\\text{Angle XY}) = \\frac{X^2 + Y^2 - Z^2}{2XY} = \\frac{${x}^2 + ${y}^2 - ${z}^2}{2(${x})(${y})} = ${cosXY.toFixed(6)}`,
+                        `\\text{Angle XY} = \\cos^{-1}(${cosXY.toFixed(6)}) = ${angXY.toFixed(6)}^\\circ \\approx ${ans1}^\\circ`,
+                        `\\text{The angle between Trail Y and Z is opposite Trail X (side } ${x} \\text{). Law of Cosines:}`,
+                        `\\cos(\\text{Angle YZ}) = \\frac{Y^2 + Z^2 - X^2}{2YZ} = \\frac{${y}^2 + ${z}^2 - ${x}^2}{2(${y})(${z})} = ${cosYZ.toFixed(6)}`,
+                        `\\text{Angle YZ} = \\cos^{-1}(${cosYZ.toFixed(6)}) = ${angYZ.toFixed(6)}^\\circ \\approx ${ans2}^\\circ`
+                    ]
+                };
+            },
+            // 6. Mt Apo Diverging Trails
+            () => {
+                let n = getNames(2);
+                let a, b, theta, valid=false;
+                while(!valid){ a=perturb(4,1); b=perturb(5,1); theta=perturb(45,0); if(a>0 && b>0 && theta>0 && theta<170) valid=true; }
+                let cSq = a*a + b*b - 2*a*b*Math.cos(theta*Math.PI/180);
+                let c = Math.sqrt(cSq);
+                let sinG1 = b * Math.sin(theta*Math.PI/180) / c;
+                let G1 = Math.asin(sinG1) * 180 / Math.PI;
+                let ans1 = Number(c.toFixed(2)), ans2 = Number(G1.toFixed(2));
+                return {
+                    text: `Two groups of hikers led by ${n[0]} and ${n[1]} leave a base camp at Mt. Apo. ${n[0]}'s group walks along a straight trail for ${a} kilometers. ${n[1]}'s group walks along a different straight trail for ${b} kilometers. The angle formed between their two trails is ${theta} degrees.`,
+                    q1: `How far apart are the two groups of hikers? Round to 2 decimal places.`,
+                    q2: `From ${n[0]}'s current position, what is the angle between the lines of sight pointing to the base camp and ${n[1]}'s group? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "km", unit2: "°",
+                    steps:[
+                        `\\text{Distance apart } c \\text{. Use Law of Cosines:}`,
+                        `c^2 = a^2 + b^2 - 2ab \\cos(\\theta)`,
+                        `c^2 = ${a}^2 + ${b}^2 - 2(${a})(${b}) \\cos(${theta}^\\circ) = ${cSq.toFixed(6)}`,
+                        `c = \\sqrt{${cSq.toFixed(6)}} = ${c.toFixed(6)} \\approx ${ans1} \\text{ km}`,
+                        `\\text{Use Law of Sines to find the angle at } ${n[0]}'s \\text{ group (opposite side } ${b} \\text{):}`,
+                        `\\frac{\\sin(\\text{Angle})}{b} = \\frac{\\sin(\\theta)}{c} \\implies \\sin(\\text{Angle}) = \\frac{${b} \\cdot \\sin(${theta}^\\circ)}{${c.toFixed(6)}} = ${sinG1.toFixed(6)}`,
+                        `\\text{Angle} = \\sin^{-1}(${sinG1.toFixed(6)}) = ${G1.toFixed(6)}^\\circ \\approx ${ans2}^\\circ`
+                    ]
+                };
+            },
+            // 7. Palawan Island Hopping
+            () => {
+                let a, b, c, valid=false;
+                while(!valid){ a=perturb(15,0); b=perturb(20,0); c=perturb(25,0); if(a+b>c && a+c>b && b+c>a) valid=true; }
+                let cosA = (b*b+c*c-a*a)/(2*b*c);
+                let A = Math.acos(cosA) * 180/Math.PI;
+                let cosB = (a*a+c*c-b*b)/(2*a*c);
+                let B = Math.acos(cosB) * 180/Math.PI;
+                let ans1 = Number(A.toFixed(2)), ans2 = Number(B.toFixed(2));
+                return {
+                    text: `A tour boat travels between three islands in Palawan: Island A, Island B, and Island C. The straight-line distance from A to B is ${c} km, from B to C is ${a} km, and from A to C is ${b} km.`,
+                    q1: `What is the angle formed at Island A (between the paths to Island B and Island C)? Round to 2 decimal places.`,
+                    q2: `What is the angle formed at Island B? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "°", unit2: "°",
+                    steps:[
+                        `\\text{Angle A is opposite side } a = ${a} \\text{. Use Law of Cosines:}`,
+                        `\\cos(A) = \\frac{b^2 + c^2 - a^2}{2bc} = \\frac{${b}^2 + ${c}^2 - ${a}^2}{2(${b})(${c})} = ${cosA.toFixed(6)}`,
+                        `A = \\cos^{-1}(${cosA.toFixed(6)}) = ${A.toFixed(6)}^\\circ \\approx ${ans1}^\\circ`,
+                        `\\text{Angle B is opposite side } b = ${b} \\text{. Use Law of Cosines:}`,
+                        `\\cos(B) = \\frac{a^2 + c^2 - b^2}{2ac} = \\frac{${a}^2 + ${c}^2 - ${b}^2}{2(${a})(${c})} = ${cosB.toFixed(6)}`,
+                        `B = \\cos^{-1}(${cosB.toFixed(6)}) = ${B.toFixed(6)}^\\circ \\approx ${ans2}^\\circ`
+                    ]
+                };
+            },
+            // 8. WPS Patrol
+            () => {
+                let a, b, theta, valid=false;
+                while(!valid){ a=perturb(30,0); b=perturb(40,0); theta=perturb(110,0); if(a>0 && b>0 && theta>0 && theta<170) valid=true; }
+                let dSq = a*a+b*b-2*a*b*Math.cos(theta*Math.PI/180);
+                let d = Math.sqrt(dSq);
+                let sinY = a * Math.sin(theta*Math.PI/180) / d;
+                let Y = Math.asin(sinY) * 180 / Math.PI;
+                let ans1 = Number(d.toFixed(2)), ans2 = Number(Y.toFixed(2));
+                return {
+                    text: `A Coast Guard vessel leaves a port in Palawan and travels in a straight line for ${a} nautical miles to Point X. It then alters its heading. The interior angle between its first path and its new path is exactly ${theta} degrees. It travels on this new path for ${b} nautical miles to Point Y.`,
+                    q1: `What is the direct distance from the port to the vessel's final position at Point Y? Round to 2 decimal places.`,
+                    q2: `From Point Y, the vessel wants to return straight to port. What is the angle formed at Point Y between the path back to port and its previous path (to Point X)? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "nautical miles", unit2: "°",
+                    steps:[
+                        `\\text{Use Law of Cosines to find distance } d \\text{: } d^2 = a^2 + b^2 - 2ab \\cos(\\theta)`,
+                        `d^2 = ${a}^2 + ${b}^2 - 2(${a})(${b}) \\cos(${theta}^\\circ) = ${dSq.toFixed(6)}`,
+                        `d = \\sqrt{${dSq.toFixed(6)}} = ${d.toFixed(6)} \\approx ${ans1} \\text{ nautical miles}`,
+                        `\\text{Use Law of Sines to find Angle Y (opposite side } a \\text{):}`,
+                        `\\frac{\\sin(Y)}{a} = \\frac{\\sin(\\theta)}{d} \\implies \\sin(Y) = \\frac{${a} \\cdot \\sin(${theta}^\\circ)}{${d.toFixed(6)}} = ${sinY.toFixed(6)}`,
+                        `Y = \\sin^{-1}(${sinY.toFixed(6)}) = ${Y.toFixed(6)}^\\circ \\approx ${ans2}^\\circ`
+                    ]
+                };
+            },
+            // 9. Boracay Sailboats
+            () => {
+                let a, b, c, valid=false;
+                while(!valid){ a=perturb(50,0); b=perturb(60,0); c=perturb(70,0); if(a+b>c && a+c>b && b+c>a) valid=true; }
+                let cosA = (b*b+c*c-a*a)/(2*b*c);
+                let A = Math.acos(cosA) * 180/Math.PI;
+                let m = c/2;
+                let xSq = b*b+m*m - 2*b*m*Math.cos(A*Math.PI/180);
+                let x = Math.sqrt(xSq);
+                let ans1 = Number(A.toFixed(2)), ans2 = Number(x.toFixed(2));
+                return {
+                    text: `Three paraws (sailboats) in Boracay form a triangle. The distance from Boat A to Boat B is ${c} meters, Boat B to Boat C is ${a} meters, and Boat A to Boat C is ${b} meters. A rescue jet ski is stationed exactly halfway between Boat A and Boat B.`,
+                    q1: `What is the angle formed at Boat A (between Boat B and Boat C)? Round to 2 decimal places.`,
+                    q2: `What is the straight-line distance from Boat C to the rescue jet ski? Round to 2 decimal places.`,
+                    ans1, ans2, unit1: "°", unit2: "m",
+                    steps:[
+                        `\\text{Use Law of Cosines to find Angle A (opposite side } a = ${a} \\text{):}`,
+                        `\\cos(A) = \\frac{b^2 + c^2 - a^2}{2bc} = \\frac{${b}^2 + ${c}^2 - ${a}^2}{2(${b})(${c})} = ${cosA.toFixed(6)}`,
+                        `A = \\cos^{-1}(${cosA.toFixed(6)}) = ${A.toFixed(6)}^\\circ \\approx ${ans1}^\\circ`,
+                        `\\text{The jet ski is at the midpoint of side } c \\text{. Distance from A is } m = ${c} / 2 = ${m}`,
+                        `\\text{Use Law of Cosines on the new smaller triangle to find distance } x \\text{:}`,
+                        `x^2 = b^2 + m^2 - 2bm \\cos(A) = ${b}^2 + ${m}^2 - 2(${b})(${m}) \\cos(${A.toFixed(6)}^\\circ) = ${xSq.toFixed(6)}`,
+                        `x = \\sqrt{${xSq.toFixed(6)}} = ${x.toFixed(6)} \\approx ${ans2} \\text{ m}`
+                    ]
+                };
+            }
+        ]
+    };
+
+    /* ==================================================
+       APP LOGIC & STATE
+       ================================================== */
+    let currentPracticeProblem = null;
+    let practiceLives = 3;
+    let testState = { problems:[], startTime: null, endTime: null, score: 0 };
+
+    // Initialize random quote
+    displayRandomQuote();
+
+    // Tab Switching
+    function switchTab(tab) {
+        document.getElementById('btn-tab-practice').classList.remove('active');
+        document.getElementById('btn-tab-test').classList.remove('active');
+        document.getElementById('practice-section').style.display = 'none';
+        document.getElementById('test-section').style.display = 'none';
+        
+        document.getElementById(`btn-tab-${tab}`).classList.add('active');
+        document.getElementById(`${tab}-section`).style.display = 'block';
+    }
+
+    // --- PRACTICE MODE ---
+    function generatePracticeProblem() {
+        let cat = document.getElementById('categorySelect').value;
+        let pool =[];
+        if(cat === 'all') {
+            pool =[...generators.right, ...generators.sines, ...generators.cosines];
+        } else {
+            pool = generators[cat];
+        }
+        
+        let probFunc = pool[Math.floor(Math.random() * pool.length)];
+        currentPracticeProblem = probFunc();
+        
+        practiceLives = 3;
+        updateLivesDisplay();
+        
+        document.getElementById('practiceArea').style.display = 'block';
+        document.getElementById('p-problemText').innerHTML = currentPracticeProblem.text;
+        document.getElementById('p-q1Text').innerText = currentPracticeProblem.q1;
+        document.getElementById('p-q2Text').innerText = currentPracticeProblem.q2;
+        
+        document.getElementById('p-q1Unit').innerText = currentPracticeProblem.unit1;
+        document.getElementById('p-q2Unit').innerText = currentPracticeProblem.unit2;
+        
+        ['p-q1Input', 'p-q2Input'].forEach(id => {
+            let el = document.getElementById(id);
+            el.value = ''; el.style.borderColor = '#ced6e0'; el.disabled = false;
+        });
+        
+        document.getElementById('checkBtn').disabled = false;
+        document.getElementById('p-solutionArea').style.display = 'none';
+        document.getElementById('p-solutionArea').className = 'solution-area';
+    }
+
+    function updateLivesDisplay() {
+        document.getElementById('livesDisplay').innerText = `${'❤️'.repeat(practiceLives)}${'🤍'.repeat(3 - practiceLives)} (${practiceLives} Lives)`;
+    }
+
+    function checkPracticeAnswer() {
+        if (!currentPracticeProblem || practiceLives <= 0) return;
+
+        let v1 = document.getElementById('p-q1Input').value.trim();
+        let v2 = document.getElementById('p-q2Input').value.trim();
+        
+        let c1 = v1 !== '' && Math.abs(parseFloat(v1) - currentPracticeProblem.ans1) < 1e-4;
+        let c2 = v2 !== '' && Math.abs(parseFloat(v2) - currentPracticeProblem.ans2) < 1e-4;
+        
+        document.getElementById('p-q1Input').style.borderColor = c1 ? '#2ed573' : '#ff4757';
+        document.getElementById('p-q2Input').style.borderColor = c2 ? '#2ed573' : '#ff4757';
+
+        if (c1 && c2) {
+            endPractice(true);
+        } else {
+            practiceLives--;
+            updateLivesDisplay();
+            if (practiceLives > 0) alert("Incorrect. Please check your answers and try again!");
+            else endPractice(false);
+        }
+    }
+
+    function endPractice(success) {
+        document.getElementById('checkBtn').disabled = true;
+        document.getElementById('p-q1Input').disabled = true;
+        document.getElementById('p-q2Input').disabled = true;
+        
+        let area = document.getElementById('p-solutionArea');
+        area.style.display = 'block';
+        
+        if (!success) {
+            area.classList.add('failed');
+            document.getElementById('p-solutionTitle').innerText = 'Out of Lives! Step-by-Step Solution';
+            document.getElementById('p-solutionTitle').style.color = '#ff4757';
+        } else {
+            area.classList.remove('failed');
+            document.getElementById('p-solutionTitle').innerText = 'Correct! Step-by-Step Solution';
+            document.getElementById('p-solutionTitle').style.color = '#2ed573';
+        }
+        
+        document.getElementById('p-stepsContainer').innerHTML = currentPracticeProblem.steps.map(s => `<div class="math" data-tex="${s}"></div>`).join('');
+        renderMath();
+        setTimeout(() => area.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    // --- TEST MODE ---
+    function startTest() {
+        let name = document.getElementById('test-name').value.trim();
+        if(!name) { alert("Please enter your full name before starting!"); return; }
+        
+        document.getElementById('test-welcome').innerText = `Good luck, ${name}! You got this! 🚀`;
+        
+        // Pick 1 from each category
+        let p1 = generators.right[Math.floor(Math.random() * generators.right.length)]();
+        let p2 = generators.sines[Math.floor(Math.random() * generators.sines.length)]();
+        let p3 = generators.cosines[Math.floor(Math.random() * generators.cosines.length)]();
+        testState.problems =[p1, p2, p3];
+        testState.startTime = new Date();
+        testState.score = 0;
+        
+        let html = '';
+        testState.problems.forEach((p, idx) => {
+            html += `
+            <div style="background: white; padding: 25px; border-radius: 16px; margin-bottom: 30px; border: 2px solid #dfe4ea; box-shadow: 0 4px 0 rgba(0,0,0,0.03);">
+                <h3 style="color: #3742fa; margin-top: 0; font-weight: 800;">Problem ${idx + 1}</h3>
+                <div class="problem-text" style="background: #f8f9fa; border: 2px solid #f1f2f6;">${p.text}</div>
+                <div class="question-block" style="border: none; padding: 0; background: none; box-shadow: none;">
+                    <div class="question-text">${p.q1}</div>
+                    <div class="input-row" style="margin-bottom: 20px;">
+                        <input type="number" id="t_q1_${idx}" placeholder="Your Answer Q1..." step="any">
+                        <span class="input-unit">${p.unit1}</span>
+                    </div>
+                </div>
+                <div class="question-block" style="border: none; padding: 0; background: none; box-shadow: none;">
+                    <div class="question-text">${p.q2}</div>
+                    <div class="input-row">
+                        <input type="number" id="t_q2_${idx}" placeholder="Your Answer Q2..." step="any">
+                        <span class="input-unit">${p.unit2}</span>
+                    </div>
+                </div>
+                <div id="t_sol_${idx}" class="solution-area" style="display:none; margin-top: 25px;"></div>
+            </div>`;
+        });
+        
+        document.getElementById('test-questions').innerHTML = html;
+        document.getElementById('test-setup').style.display = 'none';
+        document.getElementById('test-active').style.display = 'block';
+        document.getElementById('btn-submit-test').style.display = 'block';
+        document.getElementById('test-score-panel').style.display = 'none';
+        document.getElementById('test-certificate-btn').style.display = 'none';
+    }
+
+    function submitTest() {
+        if(!confirm("Are you sure you want to submit? You cannot change your answers after submitting.")) return;
+        
+        testState.endTime = new Date();
+        testState.score = 0;
+        
+        testState.problems.forEach((p, idx) => {
+            let v1 = document.getElementById(`t_q1_${idx}`).value.trim();
+            let v2 = document.getElementById(`t_q2_${idx}`).value.trim();
+            
+            let c1 = v1 !== '' && Math.abs(parseFloat(v1) - p.ans1) < 1e-4;
+            let c2 = v2 !== '' && Math.abs(parseFloat(v2) - p.ans2) < 1e-4;
+            
+            let e1 = document.getElementById(`t_q1_${idx}`);
+            let e2 = document.getElementById(`t_q2_${idx}`);
+            e1.style.border = c1 ? '3px solid #2ed573' : '3px solid #ff4757';
+            e2.style.border = c2 ? '3px solid #2ed573' : '3px solid #ff4757';
+            e1.disabled = true; e2.disabled = true;
+            
+            if(c1) testState.score++;
+            if(c2) testState.score++;
+            
+            let sol = document.getElementById(`t_sol_${idx}`);
+            sol.style.display = 'block';
+            let solHtml = `<h4 style="color:#2f3542; text-align:center; font-weight:800; font-size:1.2em;">Step-by-Step Solution (Answers: ${p.ans1}${p.unit1}, ${p.ans2}${p.unit2})</h4>`;
+            solHtml += p.steps.map(s => `<div class="math" data-tex="${s}"></div>`).join('');
+            sol.innerHTML = solHtml;
+        });
+        
+        let banner = document.getElementById('test-score-panel');
+        banner.style.display = 'block';
+        banner.innerText = `🎉 Test Complete! You scored ${testState.score} out of 6! 🎉`;
+        
+        document.getElementById('btn-submit-test').style.display = 'none';
+        document.getElementById('test-certificate-btn').style.display = 'block';
+        
+        renderMath();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function viewCertificate() {
+        let name = document.getElementById('test-name').value.trim() || "Student";
+        let canvas = document.createElement('canvas');
+        canvas.width = 800; canvas.height = 600;
+        let ctx = canvas.getContext('2d');
+        
+        // Background
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = "#f1f2f6";
+        ctx.fillRect(10, 10, canvas.width - 20, canvas.height - 20);
+        
+        ctx.strokeStyle = "#3742fa";
+        ctx.lineWidth = 10;
+        ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+        
+        // Text Configuration
+        ctx.fillStyle = "#2f3542";
+        ctx.textAlign = "center";
+        
+        ctx.font = "bold 45px Arial";
+        ctx.fillText("Certificate of Recognition", canvas.width/2, 120);
+        
+        ctx.font = "italic 24px Arial";
+        ctx.fillText("This is proudly awarded to", canvas.width/2, 210);
+        
+        ctx.font = "bold 40px Arial";
+        ctx.fillStyle = "#ff4757";
+        ctx.fillText(name, canvas.width/2, 280);
+        
+        ctx.fillStyle = "#2f3542";
+        ctx.font = "22px Arial";
+        ctx.fillText(`For successfully completing the test:`, canvas.width/2, 350);
+        ctx.font = "bold 26px Arial";
+        ctx.fillText("Trigonometry Word Problems", canvas.width/2, 390);
+        
+        ctx.font = "bold 28px Arial";
+        ctx.fillStyle = "#2ed573";
+        ctx.fillText(`Final Score: ${testState.score} / 6`, canvas.width/2, 440);
+        
+        // Draw Dates Left-Aligned
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#747d8c";
+        ctx.font = "16px Arial";
+        let startStr = testState.startTime ? testState.startTime.toLocaleString() : "N/A";
+        let endStr = testState.endTime ? testState.endTime.toLocaleString() : "N/A";
+        ctx.fillText(`Started: ${startStr}`, 80, 510);
+        ctx.fillText(`Finished: ${endStr}`, 80, 540);
+        
+        // Helper to download
+        const downloadCanvas = () => {
+            try {
+                let link = document.createElement('a');
+                link.download = `Certificate_${name.replace(/\s+/g, '_')}.jpg`;
+                link.href = canvas.toDataURL("image/jpeg");
+                link.click();
+            } catch (err) {
+                alert("Security Error: Cannot download certificate image directly when opening HTML locally. Please run this app via a Local Web Server (like 'Live Server' in VS Code).");
+            }
+        };
+
+        // Load signature
+        let sigImg = new Image();
+        sigImg.onload = () => {
+            let imgWidth = 200; 
+            let imgHeight = (sigImg.height / sigImg.width) * imgWidth;
+            let imgX = canvas.width - 80 - imgWidth; 
+            let imgY = 525 - (imgHeight / 2);
+            ctx.drawImage(sigImg, imgX, imgY, imgWidth, imgHeight);
+            downloadCanvas();
+        };
+        sigImg.onerror = () => downloadCanvas();
+        sigImg.src = 'signature.png';
+    }
+</script>
+
+</body>
+</html>
